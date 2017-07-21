@@ -1,9 +1,9 @@
 import axiom
 
-assert 'hello' in dir(axiom)
-assert callable(axiom.hello)
+#assert 'hello' in dir(axiom)
+#assert callable(axiom.hello)
+#print(axiom.hello())
 
-print(axiom.hello())
 animal = axiom.Animal("dog")
 
 print(animal)
