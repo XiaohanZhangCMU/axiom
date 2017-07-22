@@ -48,7 +48,7 @@ if(Boost_FOUND)
   add_library(axiom SHARED ${AXIOM_SRCS})
 
   target_link_libraries(axiom hellocuda ${Boost_LIBRARIES})
-  set_target_properties(axiom PROPERTIES PREFIX "" )
+  set_target_properties(axiom PROPERTIES PREFIX ""  LIBRARY_OUTPUT_DIRECTORY "../lib")
 elseif(NOT Boost_FOUND)
   message(FATAL_ERROR "Unable to find correct Boost version. Did you set BOOST_ROOT?")
 endif()

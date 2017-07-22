@@ -1,4 +1,4 @@
-import axiom
+from lib import axiom
 
 #assert 'hello' in dir(axiom)
 #assert callable(axiom.hello)
