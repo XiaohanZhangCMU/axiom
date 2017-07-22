@@ -1,33 +1,31 @@
 cmake_minimum_required(VERSION 2.8)
+project (axiom)
+if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
+   message(FATAL_ERROR "\nIn-source builds are not allowed.  Clean up by:\n rm -rf CMakeCache.txt CMakeFiles")
+endif()
 
-#find_program(CMAKE_C_COMPLIER NAMES gcc)
-#find_program(CMAKE_CXX_COMPILER NAMES g++)
-#set(CMAKE_C_COMPILER /opt/rh/devtoolset-3/root/usr/bin/gcc)
-#set(CMAKE_CXX_COMPILER /opt/rh/devtoolset-3/root/usr/bin/g++)
-#project (axiom)
-
-#if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
-#  message(FATAL_ERROR "\nIn-source builds are not allowed.  Clean up by:\n rm -rf CMakeCache.txt CMakeFiles")
-#endif()
+# ---------------- DIRS & INCLUDE ------------------ #
 
 set(BOOST_ROOT "/home/xzhang11/Planet/Libs/boost")
 set(BOOST_INCLUDE_DIR "${BOOST_ROOT}/include")
 set(BOOST_LIBRARIES "${BOOST_ROOT}/lib")
 include_directories("include" ${BOOST_INCLUDE_DIR} "/home/xzhang11/bin/miniconda3/include")
 
-# -------------------- CUDA  -------------------- #
+# --------------------- CUDA  ---------------------- #
+
 find_package(CUDA)
 if(CUDA_FOUND)
-  option (CUDA_ENFORCE_HOST_COMPILER "Force nvcc to use the same compiler used to compile .c(pp) files insted of gcc/g++" ON)
-  set(CUDA_ARCH -gencode;arch=compute_35,code=sm_35)
-  set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDA_ARCH} -std=c++11")
-  file (GLOB AXIOM_CUDA_SRCS "src/*.cu")
-  cuda_add_library(hellocuda SHARED ${AXIOM_CUDA_SRCS})
-elseif(NOT CUDA_FOUND)
-  message(FATAL_ERROR "Unable to find CUDA. Did you set CUDA_ROOT?")
+   option (CUDA_ENFORCE_HOST_COMPILER "Force nvcc to use the same compiler used to compile .c(pp) files insted of gcc/g++" ON)
+   set(CUDA_ARCH -gencode;arch=compute_35,code=sm_35)
+   set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDA_ARCH} -std=c++11")
+   file (GLOB AXIOM_CUDA_SRCS "src/*.cu")
+   cuda_add_library(cuda_axiom SHARED ${AXIOM_CUDA_SRCS})
+   set_target_properties(cuda_axiom PROPERTIES LIBRARY_OUTPUT_DIRECTORY "../lib")
+elseif(not CUDA_FOUND)
+   message(FATAL_ERROR "Unable to find CUDA. Did you set CUDA_ROOT?")
 endif()
 
-# -------------------- BOOST  -------------------- #
+# ----------------- BOOST+axiom  ------------------ #
 
 find_package(Boost 1.64.0 REQUIRED)
 if(Boost_FOUND)
@@ -37,31 +35,27 @@ if(Boost_FOUND)
   set(Boost_USE_STATIC_LIBS OFF)
   set(Boost_USE_MULTITHREADED ON)
   set(Boost_USE_STATIC_RUNTIME OFF)
-
   find_package(Boost 1.64.0 COMPONENTS python3)
   file (GLOB AXIOM_SRCS "src/*.cpp")
   if(UNIX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
   else()
-    message(FATAL_ERROR "CMakeLists.txt has not been tested/written for your compiler.")
+     message(FATAL_ERROR "CMakeLists.txt has not been tested/written for your compiler.")
   endif()
   add_library(axiom SHARED ${AXIOM_SRCS})
-
-  target_link_libraries(axiom hellocuda ${Boost_LIBRARIES})
+  target_link_libraries(axiom cuda_axiom ${Boost_LIBRARIES})
   set_target_properties(axiom PROPERTIES PREFIX ""  LIBRARY_OUTPUT_DIRECTORY "../lib")
-elseif(NOT Boost_FOUND)
-  message(FATAL_ERROR "Unable to find correct Boost version. Did you set BOOST_ROOT?")
+  if(UNIX AND (CUDA_FOUND OR CMAKE_COMPILER_IS_GNUCXX))
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+  else()
+     message(FATAL_ERROR "CMakeLists.txt has not been tested/written for your compiler.= ${CMAKE_COMPILER_IS_GNUCXX}")
+  endif()
+elseif(not Boost_FOUND)
+   message(FATAL_ERROR "Unable to find correct Boost version. Did you set BOOST_ROOT?")
 endif()
 
-#if(UNIX AND (CUDA_FOUND OR CMAKE_COMPILER_IS_GNUCXX))
-if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
-  #  ADD_DEFINITIONS("-Wall")
-else()
-  message(FATAL_ERROR "CMakeLists.txt has not been tested/written for your compiler.= ${CMAKE_COMPILER_IS_GNUCXX}")
-endif()
+# -------------------- clean --------------------- #
 
-# Add clean-all target
 add_custom_target(clean-all
   command ${CMAKE_BUILD_TOOL} clean
   command rm -rf CMakeFiles CMakeCache.txt cmake*.cmake
