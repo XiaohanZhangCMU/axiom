@@ -1,4 +1,4 @@
-from lib import axiom
+import sys
 import numpy as np
 
 '''
@@ -13,6 +13,7 @@ Todo:
     compile .....
 '''
 
+from lib import axiom
 '''
 Test class Animal
 '''
