@@ -5,14 +5,16 @@ if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 endif()
 
 # ---------------- DIRS & INCLUDE ------------------ #
-
-set(BOOST_ROOT "/home/xzhang11/boost")
+set(HOME $ENV{HOME})
+message("HOME = ${HOME}")
+set(BOOST_ROOT "${HOME}/boost")
+#set(BOOST_ROOT "${HOME}/boost")
 set(BOOST_INCLUDE_DIR "${BOOST_ROOT}/include")
 set(BOOST_LIBRARIES "${BOOST_ROOT}/lib")
-include_directories("include" "src" /home/xzhang11/bin/miniconda3/lib/python3.6/site-packages/numpy/core/include ${CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
+include_directories("include" "src" ${HOME}/bin/miniconda3/lib/python3.6/site-packages/numpy/core/include ${CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 
-# This line is needed on rice.
-# link_directories(/usr/local/cuda/lib64)
+# This line is needed on rice to find cublas.
+link_directories(/usr/local/cuda/lib64)
 
 # --------------------- CUDA  ---------------------- #
 
@@ -50,7 +52,7 @@ if(Boost_FOUND)
     add_library(axiom SHARED ${AXIOM_SRCS})
     message("Boost libr = ${Boost_LIBRARIES}.")
   
-    target_link_libraries(axiom cuda_axiom ${Boost_LIBRARIES} cublas blas)
+    target_link_libraries(axiom cuda_axiom ${Boost_LIBRARIES} cublas )
     set_target_properties(axiom PROPERTIES PREFIX ""  LIBRARY_OUTPUT_DIRECTORY "../lib")
     if(UNIX AND (CUDA_FOUND OR CMAKE_COMPILER_IS_GNUCXX))
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated -std=c++11")
