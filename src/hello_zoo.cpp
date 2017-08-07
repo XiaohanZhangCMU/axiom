@@ -4,7 +4,7 @@
  * C++ function to expose to python
  */
 
-namespace _axiom {
+namespace axiom {
 
 // Utility method to get address of the instance
 uintptr_t Animal::get_address() const {

@@ -1,11 +1,12 @@
 #include "hello_cuda.hpp"
 
-namespace _axiom {
+namespace axiom {
 
 __global__ void saxpy(int n, float a, float *x, float *y)
 {
   int i = blockIdx.x*blockDim.x + threadIdx.x;
   if (i < n) y[i] = a*x[i] + y[i];
+  printf("In GPU: n= %d: [%d,%d,%d]\n", n, blockIdx.x, blockDim.x, threadIdx.x);
 }
 
 int CudaAnimal::test_saxpy(void)
@@ -22,7 +23,7 @@ int CudaAnimal::test_saxpy(void)
     x[i] = 1.0f;
     y[i] = 2.0f;
   }
-
+  std::cout<<"This is a test"<<std::endl;
   cudaMemcpy(d_x, x, N*sizeof(float), cudaMemcpyHostToDevice);
   cudaMemcpy(d_y, y, N*sizeof(float), cudaMemcpyHostToDevice);
 
