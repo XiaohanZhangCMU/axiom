@@ -41,6 +41,26 @@ print(np.sum(x * x))
 print(np.sum(axiom.square_matrix(x)))
 
 '''
+Test Axiom
+'''
+axiom.set_mode_cpu()
+axiom.set_mode_gpu()
+axiom.set_multiprocess(True)
+
+'''
+Test Tensor
+'''
+t = axiom.Tensor()
+print("tensor see {0}".format(t.count))
+m = t.L2
+print("tensor see {0}".format(m))
+
+t.reshape(1)
+'''
+Test SyncedMemory
+'''
+
+'''
 Test class Axiom
 '''
 #axiom.set_mode_cpu()
