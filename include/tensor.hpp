@@ -6,7 +6,6 @@
 #include <vector>
 #include <climits>
 
-//#include "common.hpp"
 #include "axiom.hpp"
 #include "syncedmem.hpp"
 #include "linalgops.hpp"
@@ -31,31 +30,32 @@ void Copy(const int N, const Dtype* X, Dtype* Y) {
   }
 }
 
-
-/* A wrapper around SyncedMemory as the basic computation unit  */
+/* Tensor wraps around SyncedMemory and serve as basic computation unit */
 template <typename Dtype>
 class Tensor {
  public:
   Tensor()
        : data_(), count_(0), capacity_(0) {}
-
   explicit Tensor(const vector<unsigned int>& shape);
+
   void Reshape(const vector<unsigned int>& shape);
   void ReshapeLike(const Tensor& other);
   inline string shape_string() const {
     ostringstream stream;
-    for (unsigned int i = 0; i < shape_.size(); ++i) {
-      stream << shape_[i] << " ";
-    }
+    for (unsigned int i = 0; i < shape_.size(); ++i)  stream << shape_[i] << " ";
     stream << "(" << count_ << ")";
     return stream.str();
   }
+
   inline const vector<unsigned int>& shape() const { return shape_; }
   inline unsigned int num_axes() const { return shape_.size(); }
   inline unsigned int count() const { return count_; }
-  /* Copy from a source tensor */
-  void CopyFrom(const Tensor<Dtype>& source, bool reshape = false);
 
+  /* Copy from a source tensor */
+  void copy(const Tensor<Dtype>& source, unsigned int reshape = 0);
+  /* Assume reshaped. This is a dangerous way of assigning value to tensor */
+  void reinit(const Dtype* src, unsigned int len);
+  
   inline const shared_ptr<SyncedMemory>& data() const {
     CHECK(data_);
     return data_;

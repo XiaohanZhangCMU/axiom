@@ -7,16 +7,14 @@ void Tensor<Dtype>::Reshape(const vector<unsigned int>& shape) {
   CHECK_LE(shape.size(), kMaxTensorRanks);
   count_ = 1;
   shape_.resize(shape.size());
-  if (!shape_data_ || shape_data_->size() < shape.size() * sizeof(unsigned int)) {
+  if (!shape_data_ || shape_data_->size() < shape.size() * sizeof(unsigned int))
     shape_data_.reset(new SyncedMemory(shape.size() * sizeof(unsigned int)));
-  }
+
   unsigned int* shape_data = static_cast<unsigned int*>(shape_data_->mutable_cpu_data());
   for (unsigned int i = 0; i < shape.size(); ++i) {
     CHECK_GE(shape[i], 0);
-    if (count_ != 0) {
-      /* tensor size cannot exceeds INT_MAX */
-      CHECK_LE(shape[i], INT_MAX / count_) ;
-    }
+    /* tensor size cannot exceeds INT_MAX */
+    if (count_ != 0) CHECK_LE(shape[i], INT_MAX / count_) ;
     count_ *= shape[i];
     shape_[i] = shape[i];
     shape_data[i] = shape[i];
@@ -34,7 +32,7 @@ void Tensor<Dtype>::ReshapeLike(const Tensor<Dtype>& other) {
 
 template <typename Dtype>
 Tensor<Dtype>::Tensor(const vector<unsigned int>& shape)
-  // capacity_ must be initialized before calling Reshape
+  /* capacity_ must be initialized before calling Reshape */
   : capacity_(0) {
   Reshape(shape);
 }
@@ -51,6 +49,7 @@ const Dtype* Tensor<Dtype>::cpu_data() const {
   return (const Dtype*)data_->cpu_data();
 }
 
+/* shallow copy on cpu */
 template <typename Dtype>
 void Tensor<Dtype>::set_cpu_data(Dtype* data) {
   CHECK(data);
@@ -62,12 +61,14 @@ void Tensor<Dtype>::set_cpu_data(Dtype* data) {
   data_->set_cpu_data(data);
 }
 
+/* return data on gpu */
 template <typename Dtype>
 const Dtype* Tensor<Dtype>::gpu_data() const {
   CHECK(data_);
   return (const Dtype*)data_->gpu_data();
 }
 
+/* shallow copy on gpu */
 template <typename Dtype>
 void Tensor<Dtype>::set_gpu_data(Dtype* data) {
   CHECK(data);
@@ -169,23 +170,26 @@ Dtype Tensor<Dtype>::L2() const {
   return sumsq;
 }
 
+/* This is a dangerous way of assigning value to tensor */
 template <typename Dtype>
-void Tensor<Dtype>::CopyFrom(const Tensor& source, bool reshape) {
+void Tensor<Dtype>::reinit(const Dtype* source, unsigned int len) {
+  CHECK_EQ(len,count_); CHECK_EQ(Axiom::mode(),Axiom::CPU);
+  Copy(count_,source, static_cast<Dtype*>(data_->mutable_cpu_data()));
+}
+
+template <typename Dtype>
+void Tensor<Dtype>::copy(const Tensor& source, unsigned int reshape) {
   if (source.count() != count_ || source.shape() != shape_) {
-    if (reshape) {
-      ReshapeLike(source);
-    } else {
-      std::cerr << "Trying to copy tensors of different sizes."<<std::endl;
-    }
+    CHECK (reshape);
+    ReshapeLike(source);
   }
+
   switch (Axiom::mode()) {
   case Axiom::GPU:
-    Copy(count_, source.gpu_data(),
-      static_cast<Dtype*>(data_->mutable_gpu_data()));
+    Copy(count_, source.gpu_data(), static_cast<Dtype*>(data_->mutable_gpu_data()));
     break;
   case Axiom::CPU:
-    Copy(count_, source.cpu_data(),
-      static_cast<Dtype*>(data_->mutable_cpu_data()));
+    Copy(count_, source.cpu_data(), static_cast<Dtype*>(data_->mutable_cpu_data()));
     break;
   default:
     std::cerr<< "Unknown axiom mode."<<std::endl;

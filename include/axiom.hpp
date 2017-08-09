@@ -15,9 +15,9 @@ class Axiom {
   inline static cublasHandle_t cublas_handle() { return Get().cublas_handle_; } 
 #endif
 
-  inline static Derivator mode() { return Get().mode_; }
-  inline static void set_mode(Derivator mode) { Get().mode_ = mode; }
-  inline static bool multiprocess() { return Get().multiprocess_; }
+  inline static Derivator mode()                { return Get().mode_; }
+  inline static void set_mode(Derivator mode)   { Get().mode_ = mode; }
+  inline static bool multiprocess()             { return Get().multiprocess_; }
   inline static void set_multiprocess(bool val) { Get().multiprocess_ = val; }
 
  protected:
@@ -27,7 +27,7 @@ class Axiom {
   Derivator mode_;
   bool multiprocess_;
  private:
-  // The private constructor to avoid duplicate instantiation.
+  /* The private constructor to avoid duplicate instantiation */
   Axiom();
   DISABLE_COPY_AND_ASSIGN(Axiom);
 

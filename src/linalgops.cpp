@@ -32,7 +32,5 @@ double cpu_asum<double>(const int n, const double* x) {
   return cblas_dasum(n, x, 1);
 //  return 0;
 }
-
-
 } /* namespace axiom */
 

@@ -25,7 +25,7 @@ SyncedMemory::SyncedMemory(size_t size)
 SyncedMemory::~SyncedMemory() {
   check_device();
   if (cpu_ptr_ && own_cpu_data_) {
-    HostFree(cpu_ptr_, cpu_malloc_use_cuda_);
+    Free(cpu_ptr_, cpu_malloc_use_cuda_);
   }
 
 #ifndef CPU_ONLY
@@ -39,7 +39,7 @@ inline void SyncedMemory::to_cpu() {
   check_device();
   switch (head_) {
   case UNINITIALIZED:
-    HostMalloc(&cpu_ptr_, size_, &cpu_malloc_use_cuda_);
+    Malloc(&cpu_ptr_, size_, &cpu_malloc_use_cuda_);
     HostMemset(size_, 0, cpu_ptr_);
     head_ = HEAD_AT_CPU;
     own_cpu_data_ = true;
@@ -47,7 +47,7 @@ inline void SyncedMemory::to_cpu() {
   case HEAD_AT_GPU:
 #ifndef CPU_ONLY
     if (cpu_ptr_ == NULL) {
-      HostMalloc(&cpu_ptr_, size_, &cpu_malloc_use_cuda_);
+      Malloc(&cpu_ptr_, size_, &cpu_malloc_use_cuda_);
       own_cpu_data_ = true;
     }
     DeviceMemcpy(size_, gpu_ptr_, cpu_ptr_);
@@ -99,7 +99,7 @@ void SyncedMemory::set_cpu_data(void* data) {
   check_device();
   CHECK(data);
   if (own_cpu_data_) {
-    HostFree(cpu_ptr_, cpu_malloc_use_cuda_);
+    Free(cpu_ptr_, cpu_malloc_use_cuda_);
   }
   cpu_ptr_ = data;
   head_ = HEAD_AT_CPU;
@@ -180,6 +180,5 @@ void SyncedMemory::check_device() {
 #endif
 #endif
 }
-
 } /* namespace axiom */
 

@@ -13,11 +13,11 @@ from lib import axiom
 
 def test_Animal():
     animal = axiom.Animal("dog")
-    print(animal)
-    print("The Animal is at 0x{0}".format(animal.get_address()))
-    print("I see a {0}".format(animal.name))
+   # print(animal)
+   # print("The Animal is at 0x{0}".format(animal.get_address()))
+   # print("I see a {0}".format(animal.name))
     animal.name = "cat"
-    print("I see a {0}".format(animal.name))
+   # print("I see a {0}".format(animal.name))
     return 1
 
 def test_CudaAnimal():
@@ -30,28 +30,35 @@ def test_NumpyAnimal():
     dim1 = 10
     dim2 = 1
     x = np.random.random((dim1, dim2)).astype(np.float64)
-    print(np.sum(x * x))
-    print(np.sum(axiom.square_matrix(x)))
+   # print(np.sum(x * x))
+   # print(np.sum(axiom.square_matrix(x)))
     return 1
 
 def test_Axiom():
     axiom.set_mode_cpu()
     axiom.set_mode_gpu()
     axiom.set_multiprocess(True)
+    axiom.set_mode_cpu()
+    axiom.set_multiprocess(False)
     return 1
 
 def test_Tensor():
     t = axiom.Tensor()
-    print("tensor see {0}".format(t.count))
+   # print("tensor see {0}".format(t.count))
     m = t.L2
-    print("tensor see {0}".format(m))
+   # print("tensor see {0}".format(m))
     t.reshape(1)
     return 1
 
 def test_MemOps():
     t = axiom.Tensor()
-    print("test is not implemented")
-    return 0
+    t = axiom.Tensor()
+    arr = np.ones((2,2))
+    t.reinit(arr)
+   # print(t.data)
+
+    print("The rest tests are not implemented")
+    return 1
     foo = t.gpu_data(); # data copied cpu->gpu.
     foo = t.cpu_data(); # no data copied since both have up-to-date contents.
     bar = t.mutable_gpu_data(); # no data copied.
@@ -62,23 +69,21 @@ def test_MemOps():
     bar = t.mutable_cpu_data(); # still no data copied.
     bar = t.mutable_gpu_data(); # data copied cpu->gpu.
     bar = t.mutable_cpu_data(); # data copied gpu->cpu.
-    print("test is not implemented")
-    return 0
 
 def main(argv):
     dict_tests = {}
-    dict_tests['test_animal'] = test_Animal()
-    dict_tests['test_CudaAnimal'] = test_CudaAnimal()
-    dict_tests['test_NumpyAnimal']= test_NumpyAnimal()
-    dict_tests['test_Axiom'] = test_Axiom()
-    dict_tests['test_Tensor']= test_Tensor()
-    dict_tests['test_MemOps']= test_MemOps()
+    dict_tests['test_animal']      = test_Animal()
+    dict_tests['test_CudaAnimal']  = test_CudaAnimal()
+    dict_tests['test_NumpyAnimal'] = test_NumpyAnimal()
+    dict_tests['test_Axiom']       = test_Axiom()
+    dict_tests['test_Tensor']      = test_Tensor()
+    dict_tests['test_MemOps']      = test_MemOps()
   
     for key in dict_tests:
         if dict_tests[key] == 1:
-            print("{0} pass test.".format(key))
+            print("[OK] Test pass-->{0}().".format(key))
         else:
-            print("{0} fail test.".format(key))
+            print("[--] Test fail-->{0}().".format(key))
 
 if __name__ == "__main__":
      main(sys.argv[1:])

@@ -7,7 +7,6 @@ void gpu_dot<float>(const int n, const float* x, const float* y,
     float* out) {
   CUBLAS_CHECK(cublasSdot(Axiom::cublas_handle(), n, x, 1, y, 1, out));
 }
-
 template <>
 void gpu_dot<double>(const int n, const double* x, const double* y,
     double * out) {

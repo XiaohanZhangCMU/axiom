@@ -7,7 +7,7 @@
 
 namespace axiom {
 
-inline void HostMalloc(void** ptr, size_t size, bool* use_cuda) {
+inline void Malloc(void** ptr, size_t size, bool* use_cuda) {
 #ifndef CPU_ONLY
   if (Axiom::mode() == Axiom::GPU) {
     CUDA_CHECK(cudaMallocHost(ptr, size));
@@ -20,7 +20,7 @@ inline void HostMalloc(void** ptr, size_t size, bool* use_cuda) {
   CHECK(ptr);
 }
 
-inline void HostFree(void* ptr, bool use_cuda) {
+inline void Free(void* ptr, bool use_cuda) {
 #ifndef CPU_ONLY
   if (use_cuda) {
     CUDA_CHECK(cudaFreeHost(ptr));
@@ -33,7 +33,6 @@ inline void HostFree(void* ptr, bool use_cuda) {
 inline void HostMemset(const size_t N, const int alpha, void* X) {
   memset(X, alpha, N);
 }
-
 inline void DeviceMemset(const size_t N, const int alpha, void* X) {
 #ifndef CPU_ONLY
   CUDA_CHECK(cudaMemset(X, alpha, N));

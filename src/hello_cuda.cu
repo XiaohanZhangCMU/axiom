@@ -23,7 +23,7 @@ int CudaAnimal::test_saxpy(void)
     x[i] = 1.0f;
     y[i] = 2.0f;
   }
-  std::cout<<"This is a test"<<std::endl;
+//  std::cout<<"This is a test"<<std::endl;
   cudaMemcpy(d_x, x, N*sizeof(float), cudaMemcpyHostToDevice);
   cudaMemcpy(d_y, y, N*sizeof(float), cudaMemcpyHostToDevice);
 
@@ -35,7 +35,7 @@ int CudaAnimal::test_saxpy(void)
   float maxError = 0.0f;
   for (int i = 0; i < N; i++)
     maxError = max(maxError, abs(y[i]-4.0f));
-  printf("Max error: %f\n", maxError);
+//  printf("Max error: %f\n", maxError);
 
   cudaFree(d_x);
   cudaFree(d_y);

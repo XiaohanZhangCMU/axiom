@@ -12,14 +12,13 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-//#include "common.hpp"
 #include "axiom.hpp"
 
 namespace axiom {
 
 template <typename Dtype>
 Dtype cpu_strided_dot(const int n, const Dtype* x, const int incx,
-    const Dtype* y, const int incy);
+                      const Dtype* y, const int incy);
 template <typename Dtype>
 Dtype cpu_dot(const int n, const Dtype* x, const Dtype* y);
 /* Sum of absolute values of vector x */
