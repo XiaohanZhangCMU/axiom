@@ -46,7 +46,7 @@
 
 #define CHECK(x) \
   do { \
-    if( !x ){ \
+    if( !(x) ){ \
      printf("failure %s:%d\n",__FILE__,__LINE__); \
      exit(1);} \
   } while (0)
