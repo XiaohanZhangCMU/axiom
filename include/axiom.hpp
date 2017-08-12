@@ -20,6 +20,15 @@ class Axiom {
   inline static bool multiprocess()             { return Get().multiprocess_; }
   inline static void set_multiprocess(bool val) { Get().multiprocess_ = val; }
 
+  static void SetDevice(const int device_id);
+  // Prints the current GPU status.
+  static void DeviceQuery();
+  // Check if specified device is available
+  static bool CheckDevice(const int device_id);
+  // Search from start_id to the highest possible device ordinal,
+  // return the ordinal of the first available device.
+  static int FindDevice(const int start_id = 0);
+
  protected:
 #ifndef CPU_ONLY
   cublasHandle_t cublas_handle_;
