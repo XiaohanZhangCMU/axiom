@@ -7,6 +7,8 @@
 #include <vector>
 #include <iostream>
 
+#include "tensor.hpp"
+
 namespace axiom {
 
 class CudaAnimal {
@@ -21,6 +23,7 @@ public:
     	return *this;
     }
     int test_saxpy(void);
+    int test_tensor_saxpy(void);
 private:	
     std::string m_name; /* some property */
 

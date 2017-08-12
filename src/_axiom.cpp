@@ -161,7 +161,8 @@ bp::class_<Animal>("Animal", bp::init<std::string const & > ())
 
 /* Expose the class CudaAnimal */
 bp::class_<CudaAnimal>("CudaAnimal", bp::init<std::string const & > ())
-   .def("test_saxpy", &CudaAnimal::test_saxpy);
+   .def("test_saxpy", &CudaAnimal::test_saxpy)
+   .def("test_tensor_saxpy", &CudaAnimal::test_tensor_saxpy);
 
 /* Expose the class NumpyAnimal */
 bp::class_<NumpyAnimal>("NumpyAnimal");
