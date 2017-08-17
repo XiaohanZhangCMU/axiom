@@ -22,8 +22,9 @@ public:
     	this->m_name = in_other.m_name;
     	return *this;
     }
-    int test_saxpy(void);
+    int test_tensor_operator(void);
     int test_tensor_saxpy(void);
+    int test_saxpy(void);
 private:	
     std::string m_name; /* some property */
 

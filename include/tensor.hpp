@@ -75,14 +75,17 @@ class Tensor {
   /* L2 norm */
   Dtype L2() const;
   void ShareData(const Tensor& other);
-
+  /* return a rank-1 tensor */
+  Tensor<Dtype> operator[] (const unsigned int index) const;
+  Tensor<Dtype>& operator= (const Tensor<Dtype>& otensor);
+  
  protected:
   shared_ptr<SyncedMemory> data_;
   shared_ptr<SyncedMemory> shape_data_;
   vector<unsigned int> shape_;
   unsigned int count_;
   unsigned int capacity_;
-  DISABLE_COPY_AND_ASSIGN(Tensor);
+//  DISABLE_COPY_AND_ASSIGN(Tensor);
   
 }; /* class Tensor */
 }  /* namespace axiom */

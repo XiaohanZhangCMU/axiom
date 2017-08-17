@@ -35,6 +35,7 @@ def test_CudaAnimal():
   error = 0
   cuda_animal = axiom.CudaAnimal("dog")
   cuda_animal.test_saxpy()
+  cuda_animal.test_tensor_operator()
   cuda_animal.test_tensor_saxpy()
   return error
 
@@ -73,7 +74,10 @@ def test_MemOps():
   arr = np.ones((2,2))
   t1.reinit(arr)
   t2.reinit(arr)
-  
+
+#  k = axiom.Tensor()
+#  k.assign( t1[0] )
+
   if sum(t1.data - t2.data).sum() != 0:
     error += 1
   arr = np.ones((50,1))

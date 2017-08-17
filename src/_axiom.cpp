@@ -162,6 +162,7 @@ bp::class_<Animal>("Animal", bp::init<std::string const & > ())
 /* Expose the class CudaAnimal */
 bp::class_<CudaAnimal>("CudaAnimal", bp::init<std::string const & > ())
    .def("test_saxpy", &CudaAnimal::test_saxpy)
+   .def("test_tensor_operator", &CudaAnimal::test_tensor_operator)
    .def("test_tensor_saxpy", &CudaAnimal::test_tensor_saxpy);
 
 /* Expose the class NumpyAnimal */
@@ -186,6 +187,8 @@ bp::class_<Tensor<Dtype>, shared_ptr<Tensor<Dtype> >, boost::noncopyable>(
 #else
   .def("reinit",  bp::raw_function(&Tensor_Construct)) 
 #endif
+  .def("__getitem__", &Tensor<Dtype>::operator[], bp::arg("index"))
+  .def("assign", &Tensor<Dtype>::operator=, bp::return_internal_reference<>())
   .add_property("L2", static_cast<Dtype (Tensor<Dtype>::*)() const>(&Tensor<Dtype>::L2))
   .add_property("data", bp::make_function(&Tensor<Dtype>::mutable_cpu_data,NdarrayCallPolicies()));
 BP_REGISTER_SHARED_PTR_TO_PYTHON(Tensor<Dtype>);

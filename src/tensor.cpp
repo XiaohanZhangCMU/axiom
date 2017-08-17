@@ -170,11 +170,28 @@ Dtype Tensor<Dtype>::L2() const {
   return sumsq;
 }
 
-/* This is a dangerous way of assigning value to tensor */
+/* This is a dangerous way filling tensor with values
+ * Reshape() call must come before it to allocate mem */
 template <typename Dtype>
 void Tensor<Dtype>::reinit(const Dtype* source, unsigned int len) {
-  CHECK_EQ(len,count_); CHECK_EQ(Axiom::mode(),Axiom::CPU);
+  CHECK_EQ(len,count_); 
   Copy(count_,source, static_cast<Dtype*>(data_->mutable_cpu_data()));
+}
+
+template <typename Dtype>
+Tensor<Dtype> Tensor<Dtype>::operator[] (const unsigned int index) const {
+  CHECK_LT(index, shape_[0]);
+  Tensor<Dtype> result;
+  result.Reshape(vector<unsigned int>(shape_.begin()+1,shape_.end()));
+  result.reinit(cpu_data()+index*result.count(), result.count());
+  return result;
+}
+
+template <typename Dtype>
+Tensor<Dtype>& Tensor<Dtype>::operator= (const Tensor<Dtype>& otensor) {
+  this->Reshape(otensor.shape());
+  this->reinit(otensor.cpu_data(),otensor.count());
+  return *this;
 }
 
 template <typename Dtype>
