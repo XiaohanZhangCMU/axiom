@@ -16,6 +16,14 @@ case "${unameOut}" in
     *)          machine="UNKNOWN:${unameOut}"
 esac
 
+# use gcc
+# CC=$(command -v gcc)
+# CXX=$(command -v g++)
+
+# use icc
+CC=$(command -v icc)
+CXX=$(command -v icpc)
+
 if [ ${machine} = "Mac" ]; then 
     if [ ! -d ${HOME}/boost ]; then
         echo "Boost has been installed to ${HOME}/boost. Skip install!"
@@ -78,8 +86,7 @@ if [ ${machine} = "Mac" ]; then
     fi
 fi
 
-CC=$(command -v gcc)
-CXX=$(command -v g++)
+
 cmake -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX ..
 make
 #python ../test_axiom.py

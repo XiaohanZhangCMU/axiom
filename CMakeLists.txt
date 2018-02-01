@@ -11,12 +11,11 @@ set(HOME $ENV{HOME})
 message("HOME = ${HOME}")
 set(BOOST_ROOT "${HOME}/boost")
 set(BOOST_INCLUDE_DIR "${BOOST_ROOT}/include")
-set(BOOST_LIBRARIES "${BOOST_ROOT}/lib")
-include_directories("include" "src" ${HOME}/miniconda3/lib/python3.6/site-packages/numpy/core/include /usr/local/opt/openblas/include ${CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
+set(BOOST_LIBRARIES_DIR "${BOOST_ROOT}/lib")
+include_directories(${include_directories} "include" "src" ${HOME}/miniconda3/lib/python3.6/site-packages/numpy/core/include /usr/local/opt/openblas/include ${CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 
 # This line is needed on rice to find cublas.
-#link_directories(${link_directories} /usr/local/cuda/lib64 /usr/local/opt/openblas/lib ${HOME}/miniconda3/lib)
-link_directories(${link_directories} /usr/local/opt/openblas/lib ${HOME}/miniconda3/lib)
+link_directories(${link_directories} /usr/local/cuda/lib64 /usr/local/opt/openblas/lib ${HOME}/miniconda3/lib)
 
 # --------------------- CUDA  ---------------------- #
 
@@ -34,7 +33,7 @@ else()
             message("On Sherlock2.0. Use code=sm_61")
         else()
             set(CUDA_ARCH -gencode;arch=compute_35,code=sm_35)
-            message("On Rice/Sherlock1.0. Use code=sm_35")
+            message("On Rice or Sherlock1.0. Use code=sm_35")
         endif()
     
         set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDA_ARCH} -std=c++11")
@@ -56,7 +55,6 @@ if(Boost_FOUND)
     set(Boost_USE_STATIC_LIBS OFF) 
     set(Boost_USE_MULTITHREADED ON)  
     set(Boost_USE_STATIC_RUNTIME OFF)
-    message("I am here 1")
     #find_package(Boost 1.66.0 COMPONENTS python3 thread system numpy3)
     find_package(Boost 1.66.0 COMPONENTS python3 thread system)
 
@@ -67,19 +65,21 @@ if(Boost_FOUND)
         message(FATAL_ERROR "CMakeLists.txt has not been tested/written for your compiler.= ${CMAKE_COMPILER_IS_GNUCXX}")
     endif()
 
+    # compile shared library to interface with python
     add_library(axiomlib SHARED ${AXIOM_SRCS})
-
     if (NOT CPU_ONLY)
-        message("I am here 2")
         target_link_libraries(axiomlib cuda_axiom cublas )
     endif()
     target_link_libraries(axiomlib openblas python3.6m)
     set_target_properties(axiomlib PROPERTIES PREFIX ""  LIBRARY_OUTPUT_DIRECTORY "../lib")
 
-    message("I am here")
-    #add_executable(axiomexe ${AXIOM_SRCS})
-    #target_link_libraries(axiomexe openblas python3.6m)
-    #set_target_properties(axiomexe PROPERTIES PREFIX ""  RUNTIME_OUTPUT_DIRECTORY "../bin")
+    # compile executable
+    add_executable(axiomexe ${AXIOM_SRCS})
+    if (NOT CPU_ONLY)
+        target_link_libraries(axiomexe cuda_axiom cublas )
+    endif()
+    target_link_libraries(axiomexe openblas python3.6m ${Boost_LIBRARIES})
+    set_target_properties(axiomexe PROPERTIES PREFIX ""  RUNTIME_OUTPUT_DIRECTORY "../bin")
 
     # libc++ or libstdc++? That is a question to resolve
     # SET( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
