@@ -45,8 +45,8 @@ def test_NumpyAnimal():
   dim1 = 10
   dim2 = 1
   x = np.random.random((dim1, dim2)).astype(np.float64)
-#  print(np.sum(x * x))
-#  print(np.sum(axiom.square_matrix(x)))
+# print(np.sum(x * x))
+# print(np.sum(axiom.square_matrix(x)))
   return error
 
 def test_Axiom():
@@ -61,9 +61,9 @@ def test_Axiom():
 def test_Tensor():
   error = 0
   t = axiom.Tensor()
-#  print("tensor see {0}".format(t.count))
+# print("tensor see {0}".format(t.count))
   m = t.L2
-#  print("tensor see {0}".format(m))
+# print("tensor see {0}".format(m))
   t.reshape(1)
   return error
 
@@ -75,8 +75,8 @@ def test_MemOps():
   t1.reinit(arr)
   t2.reinit(arr)
 
-#  k = axiom.Tensor()
-#  k.assign( t1[0] )
+# k = axiom.Tensor()
+# k.assign( t1[0] )
 
   if sum(t1.data - t2.data).sum() != 0:
     error += 1
@@ -91,7 +91,6 @@ def test_MemOps():
   t1 = t2
   if sum(t3.data - arr).sum() != 0:
     error += 1
-  
   return error
    
 def test_GPU():
@@ -112,7 +111,7 @@ def test_GPU():
 def main(argv):
   dict_tests = {}
   dict_tests['test_animal']      = test_Animal()
-  dict_tests['test_CudaAnimal']  = test_CudaAnimal()
+#  dict_tests['test_CudaAnimal']  = test_CudaAnimal()
   dict_tests['test_NumpyAnimal'] = test_NumpyAnimal()
   dict_tests['test_Axiom']       = test_Axiom()
   dict_tests['test_Tensor']      = test_Tensor()

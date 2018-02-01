@@ -5,6 +5,9 @@
 
 namespace axiom {
 
+/*
+ * Center class that handles G/CPU modes and devices
+ */
 class Axiom {
  public:
   ~Axiom();
@@ -12,7 +15,7 @@ class Axiom {
   enum Derivator { CPU, GPU };
 
 #ifndef CPU_ONLY
-  inline static cublasHandle_t cublas_handle() { return Get().cublas_handle_; } 
+  inline static cublasHandle_t cublas_handle() {return Get().cublas_handle_;} 
 #endif
 
   inline static Derivator mode()                { return Get().mode_; }
@@ -39,7 +42,6 @@ class Axiom {
   /* The private constructor to avoid duplicate instantiation */
   Axiom();
   DISABLE_COPY_AND_ASSIGN(Axiom);
-
 }; /* class Axiom */ 
 }  /* namespace axiom */
 #endif /* __AXIOM_HPP__ */

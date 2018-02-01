@@ -37,7 +37,6 @@ class Tensor {
   Tensor()
        : data_(), count_(0), capacity_(0) {}
   explicit Tensor(const vector<unsigned int>& shape);
-
   void Reshape(const vector<unsigned int>& shape);
   void ReshapeLike(const Tensor& other);
   inline string shape_string() const {

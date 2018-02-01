@@ -1,3 +1,7 @@
+/*
+ * Defines python interfaces to C++ classes and methods
+ */
+
 #include <boost/python.hpp>
 #include <boost/utility.hpp>
 #include <boost/python/numpy.hpp>
@@ -46,22 +50,22 @@ const int NPY_DTYPE = NPY_FLOAT64;
 
 void* init_numpy() { import_array(); return NULL; }
 
+/* Convert C++ std::vector to boost::python list */
 template<class T>
 struct VecToList {
   static PyObject* convert(const std::vector<T>& vec) {
     boost::python::list* l = new boost::python::list();
-    for(size_t i = 0; i < vec.size(); i++)
-      (*l).append(vec[i]);
+    for(size_t i = 0; i < vec.size(); i++) (*l).append(vec[i]);
     return l->ptr();
 }};
 
 struct NdarrayConverterGenerator { template <typename T> struct apply; };
 
+/* Just store the data pointer, and add the shape information in postcall */
 template <>
 struct NdarrayConverterGenerator::apply<Dtype*> {
   struct type {
     PyObject* operator() (Dtype* data) const {
-      /* Just store the data pointer, and add the shape information in postcall */
       return PyArray_SimpleNewFromData(0, NULL, NPY_DTYPE, data);
     }
     const PyTypeObject* get_pytype() { return &PyArray_Type;}
@@ -125,7 +129,8 @@ bp::object Tensor_Reshape(bp::tuple args, bp::dict kwargs) {
   return bp::object(); /* Need to explicitly return none to use bp::raw_function */
 }
 
-/* Two methods to wrap tensor.reinit(numpy.adarray) w/o raw_function --> #define raw */
+/* Two methods to wrap tensor.reinit(numpy.adarray) 
+ * w/o raw_function --> #define raw */
 #ifndef raw
 void Tensor_Construct(Tensor<Dtype>* self, PyObject* nparray) {
 #else
@@ -146,7 +151,7 @@ bp::object Tensor_Construct(bp::tuple args, bp::dict kwargs) {
 #endif
 }
 
-BOOST_PYTHON_MODULE(axiom) {
+BOOST_PYTHON_MODULE(axiomlib) {
 
 /* Expose unsigned int array to python::List */
 bp::to_python_converter<std::vector<unsigned int,class std::allocator<unsigned int> >, VecToList<unsigned> >();
@@ -160,10 +165,12 @@ bp::class_<Animal>("Animal", bp::init<std::string const & > ())
    .add_property("name", &Animal::get_name, &Animal::set_name);
 
 /* Expose the class CudaAnimal */
+#ifndef CPU_ONLY
 bp::class_<CudaAnimal>("CudaAnimal", bp::init<std::string const & > ())
    .def("test_saxpy", &CudaAnimal::test_saxpy)
    .def("test_tensor_operator", &CudaAnimal::test_tensor_operator)
    .def("test_tensor_saxpy", &CudaAnimal::test_tensor_saxpy);
+#endif
 
 /* Expose the class NumpyAnimal */
 bp::class_<NumpyAnimal>("NumpyAnimal");
