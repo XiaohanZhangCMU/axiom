@@ -111,7 +111,7 @@ def test_GPU():
 def main(argv):
   dict_tests = {}
   dict_tests['test_animal']      = test_Animal()
-#  dict_tests['test_CudaAnimal']  = test_CudaAnimal()
+  dict_tests['test_CudaAnimal']  = test_CudaAnimal()
   dict_tests['test_NumpyAnimal'] = test_NumpyAnimal()
   dict_tests['test_Axiom']       = test_Axiom()
   dict_tests['test_Tensor']      = test_Tensor()
