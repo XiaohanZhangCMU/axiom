@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.4.0)
 project (AXIOM)
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
     message(FATAL_ERROR "\nIn-source builds are not allowed.  Clean up by:\n rm -rf CMakeCache.txt CMakeFiles")
@@ -7,15 +7,24 @@ endif()
 # ---------------- DIRS & INCLUDE ------------------ #
 site_name(HostName)
 message("HostName = ${HostName}")
+
 set(HOME $ENV{HOME})
 message("HOME = ${HOME}")
+
 set(BOOST_ROOT "${HOME}/boost")
 set(BOOST_INCLUDE_DIR "${BOOST_ROOT}/include")
 set(BOOST_LIBRARIES_DIR "${BOOST_ROOT}/lib")
-include_directories(${include_directories} "include" "src" ${HOME}/miniconda3/lib/python3.6/site-packages/numpy/core/include /usr/local/opt/openblas/include ${CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 
-# This line is needed on rice to find cublas.
-link_directories(${link_directories} /usr/local/cuda/lib64 /usr/local/opt/openblas/lib ${HOME}/miniconda3/lib)
+set(CONDA_ROOT ${HOME}/miniconda3)
+set(CONDA_INCLUDE_DIR "${CONDA_ROOT}/include")
+set(CONDA_LIBRARIES_DIR "${CONDA_ROOT}/lib")
+
+include_directories(${include_directories} "include" "src" ${CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
+link_directories   (${link_directories} ${CONDA_LIBRARIES_DIR} ${BOOST_LIBRARIES_DIR})
+
+# This line is needed on Rice to find cublas.
+include_directories(${include_directories} /usr/local/opt/openblas/include)
+link_directories   (${link_directories} /usr/local/opt/openblas/lib)
 
 # --------------------- CUDA  ---------------------- #
 
@@ -39,6 +48,10 @@ else()
         set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDA_ARCH} -std=c++11")
         file (GLOB AXIOM_CUDA_SRCS "src/*.cu" "src/tensor.cpp")
         cuda_add_library(cuda_axiom SHARED ${AXIOM_CUDA_SRCS})
+
+        # This line is needed on rice to find cublas.
+        link_directories(${link_directories} /usr/local/cuda/lib64)
+
         target_link_libraries(cuda_axiom cublas)
         set_target_properties(cuda_axiom PROPERTIES LIBRARY_OUTPUT_DIRECTORY "../lib")
     else() # if(not CUDA_FOUND)
@@ -70,7 +83,7 @@ if(Boost_FOUND)
     if (NOT CPU_ONLY)
         target_link_libraries(axiomlib cuda_axiom cublas )
     endif()
-    target_link_libraries(axiomlib openblas python3.6m)
+    target_link_libraries(axiomlib openblas python3.6m ${Boost_LIBRARIES})
     set_target_properties(axiomlib PROPERTIES PREFIX ""  LIBRARY_OUTPUT_DIRECTORY "../lib")
 
     # compile executable

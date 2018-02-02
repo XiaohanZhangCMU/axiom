@@ -17,15 +17,15 @@ case "${unameOut}" in
 esac
 
 # use gcc
-# CC=$(command -v gcc)
-# CXX=$(command -v g++)
+CC=$(command -v gcc)
+CXX=$(command -v g++)
 
 # use icc
-CC=$(command -v icc)
-CXX=$(command -v icpc)
+#CC=$(command -v icc)
+#CXX=$(command -v icpc)
 
 if [ ${machine} = "Mac" ]; then 
-    if [ ! -d ${HOME}/boost ]; then
+    if [ -d ${HOME}/boost ]; then
         echo "Boost has been installed to ${HOME}/boost. Skip install!"
     else
         echo "Boost is missing from ${HOME}/boost. Installing boost. Patience!!!"
