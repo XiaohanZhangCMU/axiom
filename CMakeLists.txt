@@ -19,12 +19,15 @@ set(CONDA_ROOT ${HOME}/miniconda3)
 set(CONDA_INCLUDE_DIR "${CONDA_ROOT}/include")
 set(CONDA_LIBRARIES_DIR "${CONDA_ROOT}/lib")
 
-include_directories(${include_directories} "include" "src" ${CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
-link_directories   (${link_directories} ${CONDA_LIBRARIES_DIR} ${BOOST_LIBRARIES_DIR})
+include_directories(${include_directories} "include" ${CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
+link_directories   (${link_directories}    "lib" ${CONDA_LIBRARIES_DIR} ${BOOST_LIBRARIES_DIR})
 
-# This line is needed on Rice to find cublas.
-include_directories(${include_directories} /usr/local/opt/openblas/include)
-link_directories   (${link_directories} /usr/local/opt/openblas/lib)
+# These lines are machine dependent.
+if("${HostName}" MATCHES "rice*")
+    message("On rice: add self-defined blas and cuda library")
+    include_directories(${include_directories} /usr/local/opt/openblas/include)
+    link_directories   (${link_directories} /usr/local/opt/openblas/lib /usr/local/cuda/lib64)
+endif()
 
 # --------------------- CUDA  ---------------------- #
 
@@ -48,9 +51,6 @@ else()
         set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDA_ARCH} -std=c++11")
         file (GLOB AXIOM_CUDA_SRCS "src/*.cu" "src/tensor.cpp")
         cuda_add_library(cuda_axiom SHARED ${AXIOM_CUDA_SRCS})
-
-        # This line is needed on rice to find cublas.
-        link_directories(${link_directories} /usr/local/cuda/lib64)
 
         target_link_libraries(cuda_axiom cublas)
         set_target_properties(cuda_axiom PROPERTIES LIBRARY_OUTPUT_DIRECTORY "../lib")
