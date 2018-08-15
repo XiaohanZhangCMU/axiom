@@ -51,7 +51,6 @@ int main( )
    std::vector<unsigned int> shape(2);
    shape[0] = 2; shape[1] = 2;
    t.Reshape(shape);
-
    CudaAnimal ca("cuda animal");
    //ca.test_tensor_saxpy();
    ca.test_saxpy();
