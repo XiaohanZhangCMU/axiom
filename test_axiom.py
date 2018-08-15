@@ -108,6 +108,25 @@ def test_GPU():
   #bar = t.mutable_cpu_data(); # data copied gpu->cpu.
   return 0
 
+def test_Relax():
+  error = 0
+  acc = 1e-10
+  x0=np.rand()/100000000.0;
+  x1=np.rand()/100000000.0;
+  n=2;
+  dfpred=0.02;
+  maxfn=1000;
+
+  X = np.zeros((2,1));
+  G = np.zeros((2,1));
+  W = np.zeros((100,1));
+ 
+  X[0]=x0;
+  X[1]=x1;
+  ncalls=0;
+  CGRelax(axiom.values, n, acc, maxfn, dfpred,X,G, &F, NULL);
+  return error
+
 def main(argv):
   dict_tests = {}
   dict_tests['test_animal']      = test_Animal()
@@ -117,6 +136,7 @@ def main(argv):
   dict_tests['test_Tensor']      = test_Tensor()
   dict_tests['test_MemOps']      = test_MemOps()
   dict_tests['test_GPU']         = test_GPU() 
+  dict_tests['test_Relax']       = test_Relax() 
 
   for key in dict_tests:
     if dict_tests[key] == 0:

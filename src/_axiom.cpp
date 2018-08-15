@@ -19,6 +19,7 @@
 #include "axiom.hpp"
 #include "tensor.hpp"
 #include "linalgops.hpp" 
+#include "relax_zxcgr.hpp"
 
 /* The macro Boost.Python signifies Python extension module */
 
@@ -180,6 +181,10 @@ bp::def("square_matrix", &Entry_Square);
 bp::def("set_mode_cpu", &set_mode_cpu);
 bp::def("set_mode_gpu", &set_mode_gpu);
 bp::def("set_multiprocess", &Axiom::set_multiprocess);
+
+/* Expose relax_zxcgr::CGRelax() */
+// bp::def("zxcgr", &CGRelax);
+// bp::def("values", &values);
 
 /* Expose the class Tensor */
 bp::class_<Tensor<Dtype>, shared_ptr<Tensor<Dtype> >, boost::noncopyable>(
