@@ -23,10 +23,15 @@ include_directories(${include_directories} "include" ${CPLUS_INCLUDE_DIR} ${BOOS
 link_directories   (${link_directories}    "lib" ${CONDA_LIBRARIES_DIR} ${BOOST_LIBRARIES_DIR})
 
 # These lines are machine dependent.
-if("${HostName}" MATCHES "rice*")
+if("${HostName}" MATCHES "rice*" )
     message("On rice: add self-defined blas and cuda library")
     include_directories(${include_directories} /usr/local/opt/openblas/include)
     link_directories   (${link_directories} /usr/local/opt/openblas/lib /usr/local/cuda/lib64)
+endif()
+if(APPLE)
+    message("On OSX: add self-defined blas library")
+    include_directories(${include_directories} /usr/local/opt/openblas/include)
+    link_directories   (${link_directories} /usr/local/opt/openblas/lib)
 endif()
 
 # --------------------- CUDA  ---------------------- #
