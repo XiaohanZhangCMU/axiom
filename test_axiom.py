@@ -9,26 +9,26 @@ Remarks to be noted for users:
        it personally but better to note it here in the header file.
 '''
 
-from lib import axiom
+from lib import axiomlib
 
 def test_Animal():
   error = 0
   animal1 = axiom.Animal("dog")
   animal2 = axiom.Animal("cat")
-  
-#  print(animal1)
-#  print("The Animal is at 0x{0}".format(animal.get_address()))
-#  print("I see a {0}".format(animal.name))
-#  print("I see a {0}".format(animal.name))
-  
+
+  print(animal1)
+  print("The Animal is at 0x{0}".format(animal.get_address()))
+  print("I see a {0}".format(animal.name))
+  print("I see a {0}".format(animal.name))
+
   animal1.name = "cat"
   if animal2.name != animal1.name:
     error += 1
-  
+
   animal = animal2
   if animal.name != animal1.name:
     error += 1
-  
+
   return error
 
 def test_CudaAnimal():
@@ -92,7 +92,7 @@ def test_MemOps():
   if sum(t3.data - arr).sum() != 0:
     error += 1
   return error
-   
+
 def test_GPU():
   error = 0
   t = axiom.Tensor()
@@ -120,11 +120,11 @@ def test_Relax():
   X = np.zeros((2,1));
   G = np.zeros((2,1));
   W = np.zeros((100,1));
- 
+
   X[0]=x0;
   X[1]=x1;
   ncalls=0;
-  CGRelax(axiom.values, n, acc, maxfn, dfpred,X,G, &F, NULL);
+  CGRelax(axiom.values, n, acc, maxfn, dfpred,X,G, F, NULL);
   return error
 
 def main(argv):
@@ -135,8 +135,8 @@ def main(argv):
   dict_tests['test_Axiom']       = test_Axiom()
   dict_tests['test_Tensor']      = test_Tensor()
   dict_tests['test_MemOps']      = test_MemOps()
-  dict_tests['test_GPU']         = test_GPU() 
-  dict_tests['test_Relax']       = test_Relax() 
+  dict_tests['test_GPU']         = test_GPU()
+  dict_tests['test_Relax']       = test_Relax()
 
   for key in dict_tests:
     if dict_tests[key] == 0:

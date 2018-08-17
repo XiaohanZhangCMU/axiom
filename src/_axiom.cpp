@@ -169,7 +169,7 @@ bp::class_<Animal>("Animal", bp::init<std::string const & > ())
 #ifndef CPU_ONLY
 bp::class_<CudaAnimal>("CudaAnimal", bp::init<std::string const & > ())
    .def("test_saxpy", &CudaAnimal::test_saxpy)
-   .def("test_tensor_operator", &CudaAnimal::test_tensor_operator)
+   .def("test_tensor_operator", &CudaAnimal::test_tensor_operator);
    .def("test_tensor_saxpy", &CudaAnimal::test_tensor_saxpy);
 #endif
 
@@ -183,8 +183,8 @@ bp::def("set_mode_gpu", &set_mode_gpu);
 bp::def("set_multiprocess", &Axiom::set_multiprocess);
 
 /* Expose relax_zxcgr::CGRelax() */
-// bp::def("zxcgr", &CGRelax);
-// bp::def("values", &values);
+//bp::def("zxcgr", &CGRelax);
+//bp::def("values", &values);
 
 /* Expose the class Tensor */
 bp::class_<Tensor<Dtype>, shared_ptr<Tensor<Dtype> >, boost::noncopyable>(

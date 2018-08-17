@@ -43,7 +43,6 @@ double X[2],G[2],F,W[100];
 
 int main( )
 {
-#if 1
    cout<<"Hello World!"<<std::endl;
    Animal animal("I am here");
    cout<<"animal name = "<<animal.get_name()<<std::endl;
@@ -51,13 +50,14 @@ int main( )
    std::vector<unsigned int> shape(2);
    shape[0] = 2; shape[1] = 2;
    t.Reshape(shape);
+#ifndef CPU_ONLY
    CudaAnimal ca("cuda animal");
-   //ca.test_tensor_saxpy();
+   ca.test_tensor_saxpy();
    ca.test_saxpy();
 #endif
 
 
-#if 1
+#ifndef CPU_ONLY
     double x0,x1;
     int n, maxfn;
     double dfpred;

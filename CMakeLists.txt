@@ -44,7 +44,7 @@ else()
     find_package(CUDA)
     if(CUDA_FOUND)
         option (CUDA_ENFORCE_HOST_COMPILER "Force nvcc to use the same compiler used to compile .c(pp) files insted of gcc/g++" ON)
-    
+
         if(${HostName} MATCHES "sh-*")
             set(CUDA_ARCH -gencode;arch=compute_61,code=sm_61)
             message("On Sherlock2.0. Use code=sm_61")
@@ -52,7 +52,7 @@ else()
             set(CUDA_ARCH -gencode;arch=compute_35,code=sm_35)
             message("On Rice or Sherlock1.0. Use code=sm_35")
         endif()
-    
+
         set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDA_ARCH} -std=c++11")
         file (GLOB AXIOM_CUDA_SRCS "src/*.cu" "src/tensor.cpp")
         cuda_add_library(cuda_axiom SHARED ${AXIOM_CUDA_SRCS})
@@ -68,13 +68,13 @@ endif()
 
 # ----------------- BOOST+axiom  ------------------ #
 
-find_package(Boost 1.66.0 REQUIRED)
+find_package(Boost 1.68.0 REQUIRED)
 if(Boost_FOUND)
-    set(Boost_USE_STATIC_LIBS OFF) 
-    set(Boost_USE_MULTITHREADED ON)  
+    set(Boost_USE_STATIC_LIBS OFF)
+    set(Boost_USE_MULTITHREADED ON)
     set(Boost_USE_STATIC_RUNTIME OFF)
-    #find_package(Boost 1.66.0 COMPONENTS python3 thread system numpy3)
-    find_package(Boost 1.66.0 COMPONENTS python3 thread system)
+    #find_package(Boost 1.68.0 COMPONENTS python36 thread system numpy3 REQUIRED)
+    find_package(Boost 1.68.0 COMPONENTS python36 thread system REQUIRED)
 
     file (GLOB AXIOM_SRCS "src/*.cpp")
     if(UNIX OR APPLE OR CMAKE_COMPILER_IS_GNUCXX)
