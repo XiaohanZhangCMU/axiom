@@ -94,6 +94,8 @@ endif()
 # compile shared library to interface with python
 ADD_SUBDIRECTORY(zoo)
 ADD_SUBDIRECTORY(tensor)
+ADD_SUBDIRECTORY(mdfem)
+ADD_SUBDIRECTORY(mdsw)
 
 
 # -------------------- clean --------------------- #

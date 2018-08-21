@@ -26,10 +26,12 @@ PYBIND11_MODULE(tensor, m) {
     m.doc() = "Tensor class exposure";
 
     /* Expose the class Animal */
-    bp::class_<Tensor<Dtype> >(m,"Tensor")
+    bp::class_<Tensor<Dtype> >(m,"Tensor", bp::buffer_protocol())
         .def(bp::init<> ())
         //.def("shape", &Tensor<Dtype>::shape<std::vector<int>>, bp::return_value_policy::reference)
         .def("shape", &Tensor<Dtype>::shape, bp::return_value_policy::reference)
+        .def("copy",  &Tensor<Dtype>::copy, bp::return_value_policy::reference)
+        .def("set_cpu_data", &Tensor<Dtype>::set_cpu_data, bp::return_value_policy::automatic)
         ;
 
 } /* PYBIND11_MODULE */

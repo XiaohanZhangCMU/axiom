@@ -1,0 +1,49 @@
+      MDFrame::GnuPlotHistogram()      in md.o
+  "MDFrame::AddnvvtoPtPn(Vector3&, Vector3&, Vector3&, double)", referenced from:
+      MDFrame::calcprop()     in md.o
+      MDFrame::call_potential()      in md.o
+  "MDFrame::MC_FFSprocess()", referenced from:
+      vtable for FEMFrame in ccHwqOEb.o
+  "MDFrame::SWITCHpotential(double)", referenced from:
+      MDFrame::call_potential()      in md.o
+  "MDFrame::SWITCHpotential_user(double)", referenced from:
+      vtable for FEMFrame in ccHwqOEb.o
+  "MDFrame::SWITCHpotential_user_energyonly(double)", referenced from:
+      vtable for FEMFrame in ccHwqOEb.o
+  "MDFrame::exec(char const*)", referenced from:
+      FEMFrame::exec(char const*) in ccHwqOEb.o
+      virtual thunk to FEMFrame::exec(char const*) in ccHwqOEb.o
+  "MDFrame::InitPtPn()", referenced from:
+      MDFrame::run()     in md.o
+  "MDFrame::MC_Alloc()", referenced from:
+      vtable for FEMFrame in ccHwqOEb.o
+  "MDFrame::MC_Update()", referenced from:
+      vtable for FEMFrame in ccHwqOEb.o
+  "MDFrame::PrintPtPn()", referenced from:
+      MDFrame::run()     in md.o
+  "typeinfo for MDFrame", referenced from:
+      typeinfo for FEMFrame in ccHwqOEb.o
+  "vtable for POSCARFile", referenced from:
+      __GLOBAL__sub_I_fem.cpp in ccHwqOEb.o
+      PropFile::describe()     in md.o
+  NOTE: a missing vtable usually means the first non-inline virtual member function has no definition.
+  "vtable for MDCASKconFile", referenced from:
+      __GLOBAL__sub_I_fem.cpp in ccHwqOEb.o
+      PropFile::describe()     in md.o
+  NOTE: a missing vtable usually means the first non-inline virtual member function has no definition.
+  "vtable for MDCASKinputFile", referenced from:
+      __GLOBAL__sub_I_fem.cpp in ccHwqOEb.o
+      PropFile::describe()     in md.o
+  NOTE: a missing vtable usually means the first non-inline virtual member function has no definition.
+  "vtable for MDFrame", referenced from:
+      FEMFrame::~FEMFrame() in ccHwqOEb.o
+      virtual thunk to FEMFrame::~FEMFrame() in ccHwqOEb.o
+      virtual thunk to FEMFrame::~FEMFrame() in ccHwqOEb.o
+      FEMFrame::~FEMFrame() in ccHwqOEb.o
+      PropFile::describe()     in md.o
+  NOTE: a missing vtable usually means the first non-inline virtual member function has no definition.
+  "vtable for AVGCNFile", referenced from:
+      __GLOBAL__sub_I_fem.cpp in ccHwqOEb.o
+      PropFile::describe()     in md.o
+  NOTE: a missing vtable usually means the first non-inline virtual member function has no definition.
+ld: symbol(s) not found for architecture x86_6

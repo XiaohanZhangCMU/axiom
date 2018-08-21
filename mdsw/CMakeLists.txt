@@ -1,0 +1,18 @@
+get_filename_component(target ${CMAKE_CURRENT_SOURCE_DIR} NAME)   # put current folder name as target name
+include_directories(${include_directories} "include" "../pybind11/include/" "/usr/X11R6/include")
+link_directories(${link_directories} "/usr/X11R6/lib")
+add_definitions(-DNO_XPM -D_SW_Si)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -Wno-unused-but-set-variable -Wno-misleading-indentation -Wno-format-overflow -Wno-unused-variable")
+file (GLOB SRCS "src/*.cpp")
+
+set(EXECUTABLE OFF)
+if(EXECUTABLE)
+    add_executable(${target} ${SRCS})
+    target_compile_options(${target} PUBLIC ${PYBIND11_CPP_STANDARD})
+    set_target_properties(${target} PROPERTIES PREFIX "" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/")
+else()
+    pybind11_add_module(${target} ${SRCS})
+    set(OUTPUTDIR "/../lib/")
+    set_target_properties(${target} PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../lib/")
+endif()
+target_link_libraries(${target} PRIVATE openblas X11)
