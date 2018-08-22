@@ -20,11 +20,10 @@
    Say you want to compile mdsw, in the CMakeLists.txt::EXAMPLES part, add ADD_SUBDIRECTORY(mdsw). 
 3) mkdir build; cd build; 
 4) cmake ..
-5) make
-
-Optional packages for mdsw and mdfem. Required if you want to visualize atoms. 
-6) pip install PyOpenGL PyOpenGL_accelerate 
-7) python3 -m pip install Pillow
+5) make  
+Optional packages for mdsw and mdfem. Required if you want to visualize atoms.   
+6) pip install PyOpenGL PyOpenGL_accelerate  
+7) python3 -m pip install Pillow   
 
 ## Examples:
 1) zoo: playground of simple pybind11 binding. 
