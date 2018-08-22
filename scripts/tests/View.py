@@ -4,6 +4,7 @@ from OpenGL.GLUT import *
 
 import numpy as np
 import sys
+from PIL import Image
 
 class Viewer(object):
     def __init__(self, sim, width, height, display=None):
@@ -33,7 +34,7 @@ class Viewer(object):
         self.fixed = sim.fixed()
 
         # For test only: plot only the first 100 fixed atoms
-        self.fixed[:100] = 1
+        self.fixed[:] = 1
         self.SR = self.SR[self.fixed==1,:]
         self.atomradius = 0.05
 
@@ -143,6 +144,12 @@ class Viewer(object):
         glutSwapBuffers()
 
 
+        #buffers = self.myglCreateBuffers(self.g_Width, self.g_Height)
+        #data, width, height = self.myglReadColorBuffer(buffers)
+        #image = Image.frombytes("RGBA", (width, height), data)
+        #image.save("fbo.png", "PNG")
+
+
     def reshape(self, width, height):
         #global g_Width, g_Height
         self.g_Width = width
@@ -163,6 +170,7 @@ class Viewer(object):
         if(key==b'r'): self.resetView()
         if(key==b'z'): self.zoomin()
         if(key==b'q'): sys.exit(0)
+        if(key==b'p'): self.saveBuffer(filename="test.jpg", format="JPEG")
         glutPostRedisplay()
 
 
@@ -215,6 +223,18 @@ class Viewer(object):
         #    self.zoom = 1.1
         glutPostRedisplay()
 
+
+    def saveBuffer( self, filename="test.jpg", format="JPEG" ):
+        """Save current buffer to filename in format"""
+        from PIL import Image
+        glutPostRedisplay()
+        x,y,width,height = glGetDoublev(GL_VIEWPORT)
+        glPixelStorei(GL_PACK_ALIGNMENT, 1)
+        data = glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE)
+        image = Image.frombytes( "RGB", (width.astype(int), height.astype(int)), data )
+        image.save( filename, format )
+        print('Saved image to %s'% ( filename))
+        return image
 
     #------
     # MAIN

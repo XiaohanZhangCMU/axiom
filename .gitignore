@@ -2,6 +2,8 @@
 *~
 *.cn
 .ipynb*
+*.png
+*.jpg
 bin
 lib
 build
