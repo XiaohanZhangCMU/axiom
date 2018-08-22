@@ -2,6 +2,9 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
+import numpy as np
+import sys
+
 class Viewer(object):
     def __init__(self, sim, width, height, display=None):
         #-----------
@@ -26,8 +29,14 @@ class Viewer(object):
         self.xTrans = 0.
         self.yTrans = 0.
 
-        #self.SR = sim.SR
-        #self.H = sim.H
+        self.SR = sim.SR()
+        self.fixed = sim.fixed()
+
+        # For test only: plot only the first 100 fixed atoms
+        self.fixed[:100] = 1
+        self.SR = self.SR[self.fixed==1,:]
+        self.atomradius = 0.05
+
 
     #-------------------
     # SCENE CONSTRUCTOR
@@ -44,7 +53,7 @@ class Viewer(object):
         glutSolidSphere(2,20,20)
         glPopMatrix()
 
-    def spheres(self):
+    def spheres_bruteforce(self):
         glPushMatrix()
         color = [1.0,0.,0.,1.]
         glTranslated(-1.2,-1.2,-1.2);
@@ -58,6 +67,16 @@ class Viewer(object):
         glMaterialfv(GL_FRONT,GL_DIFFUSE,color)
         glutSolidSphere(0.2,20,20)
         glPopMatrix()
+
+
+    def spheres(self):
+        color = [1.0,0.,0.,1.]
+        glMaterialfv(GL_FRONT,GL_DIFFUSE,color)
+        for ind in range(self.SR.shape[0]):
+            glPushMatrix()
+            glTranslated(self.SR[ind,0], self.SR[ind,1], self.SR[ind,2]);
+            glutSolidSphere(self.atomradius,20,20)
+            glPopMatrix()
 
     #--------
     # VIEWER
@@ -103,6 +122,7 @@ class Viewer(object):
 
     def display(self):
         # Clear frame buffer and depth buffer
+        glClearColor(1.0, 1.0, 1.0, 0.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         # Set up viewing transformation, looking down -Z axis
         glLoadIdentity()
@@ -142,7 +162,7 @@ class Viewer(object):
         global zTr, yTr, xTr
         if(key==b'r'): self.resetView()
         if(key==b'z'): self.zoomin()
-        if(key==b'q'): exit(0)
+        if(key==b'q'): sys.exit(0)
         glutPostRedisplay()
 
 

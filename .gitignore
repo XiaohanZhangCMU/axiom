@@ -1,6 +1,7 @@
 *.out
 *~
 *.cn
+.ipynb*
 bin
 lib
 build
