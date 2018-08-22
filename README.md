@@ -15,9 +15,9 @@
 
 ## Install:
 
-0) git clone git@github.com:XiaohanZhangCMU/axiom.git
-1) cd axiom; 
-2) Say you want to compile mdsw, in the CMakeLists.txt::EXAMPLES part, add ADD_SUBDIRECTORY(mdsw). 
+1) git clone git@github.com:XiaohanZhangCMU/axiom.git
+2) cd axiom; 
+   Say you want to compile mdsw, in the CMakeLists.txt::EXAMPLES part, add ADD_SUBDIRECTORY(mdsw). 
 3) mkdir build; cd build; 
 4) cmake ..
 5) make
