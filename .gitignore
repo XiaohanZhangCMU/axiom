@@ -1,4 +1,6 @@
 *.out
+*~
+*.cn
 bin
 lib
 build

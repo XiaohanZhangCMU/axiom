@@ -9,6 +9,8 @@
 #include <pybind11/stl_bind.h>
 #include <pybind11/stl.h>
 
+#include <pybind11/numpy.h>
+
 #include "sw.h"
 using namespace std;
 
@@ -106,13 +108,49 @@ PYBIND11_MODULE(mdsw, m) {
         .def_readwrite("conj_itmax", &MDFrame::conj_itmax)
         .def_readwrite("conj_fevalmax", &MDFrame::conj_fevalmax)
         .def_readwrite("conj_fixbox",   &MDFrame::conj_fixbox)
+
+        /* https://stackoverflow.com/questions/44659924/returning-numpy-arrays-via-pybind11 */
+        .def("SR", [](MDFrame &m) {
+            double *foo = reinterpret_cast<double*> (m._SR);
+	        /* Create a Python object that will free the allocated memory when destroyed: */
+	        bp::capsule free_when_done(foo, [](void *SR) {
+	            double *foo = reinterpret_cast<double *>(SR);
+	            std::cerr << "Element [0] = " << foo[0] << "\nfreeing memory @ " << SR << std::endl;
+	            delete[] foo;
+	          });
+
+	        return bp::array_t<double>(
+                  {m._NP, 3}, // shape
+                  {3*8, 8}, // C-style contiguous strides for double
+                  foo, // the data pointer
+                  free_when_done); // numpy array references this parent
+	        })
+
+        .def("fixed", [](MDFrame &m) {
+            int *foo = reinterpret_cast<int*> (m.fixed);
+	        /* Create a Python object that will free the allocated memory when destroyed: */
+	        bp::capsule free_when_done(foo, [](void *fixed) {
+	            int *foo = reinterpret_cast<int *>(fixed);
+	            std::cerr << "Element [0] = " << foo[0] << "\nfreeing memory @ " << fixed << std::endl;
+	            delete[] foo;
+	          });
+
+	        return bp::array_t<int>(
+                  {m._NP}, // shape
+                  {4}, // C-style contiguous strides for double
+                  foo, // the data pointer
+                  free_when_done); // numpy array references this parent
+	        })
         ;
 
     bp::class_<SWFrame, MDFrame, Py_SWFrame>(m,"SWFrame", bp::buffer_protocol())
         .def(bp::init<> ())
         .def("initvars",&SWFrame::initvars)
         .def("eval", &SWFrame::eval)
+
         ;
+
+
 
 } /* PYBIND11_MODULE */
 
