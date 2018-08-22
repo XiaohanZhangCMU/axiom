@@ -1,14 +1,14 @@
 # axiom: gpu/c++ & python binding playground using boost and pybind11.
-0) axiom uses pybind11 (https://github.com/pybind/pybind11) a wrapper of boost to bind. 
-1) Add C++/GPU program and simulation packages to axiom/ as a new subdirectory and export the variables and methods to python. This requires you write your own CMakeLists.txt in the subdirectory. Also, write your own _axiom.cpp in a similar way as _axiom.cpp in the other examples subdirectories.
-2) Ideally, many simulation models can be glued together in this framework.  
+1) I use pybind11 (https://github.com/pybind/pybind11) a wrapper of boost and CMakeLists to bind C++ codes with python2.7 and python3.6.
+2) You add C++/GPU program and simulation packages to axiom/ as a new subdirectory and export the variables and methods to python. This requires you write your own CMakeLists.txt in the subdirectory. Also, write your own _axiom.cpp in a similar way as _axiom.cpp in the other examples subdirectories, many C++/Fortran simulation models can be glued together in this framework.  
 3) CMakeLists.txt of the root directory compiled all subdirectories in the EXAMPLE section to generate a dynamic library with the same name as the subdirectory and put in axiom/lib.   
 4) In python script, you need to add sys.path.append('your_path_to/axiom/lib/') at the top of the python script. 
-5) mdsw and mdfem are two modules of MD++ (http://micro.stanford.edu/MDpp) and are combined as a part of openAI:gym. 
+5) You can export C++ simulation packages to openAI:gym using this framework. Examples: mdsw and mdfem (two modules of MD++).
 6) View.py is a visulization helper script. You can develop similar one for your own simulator. 
+7) Double Array and int array can be exported as numpy array following mdsw/_axiom.cpp or mdfem/_axiom.cpp.
 
 
-## System tested:
+## System and software tested but not limited to:
 1) OS X > Yosemite 2) Linux: CentOS >= 7.5.1804 or ubuntu >=16.04.4 LTS).
 3) python: 2.7 or >=3. 
 4) boost = 1.66.0, 1.68.0.
@@ -17,7 +17,7 @@
 
 0) git clone git@github.com:XiaohanZhangCMU/axiom.git
 1) cd axiom; 
-2) choose desired examples (see below) to build in CMakeLists.txt::EXAMPLES part, for example, ADD_SUBDIRECTORY(mdsw)  
+2) Say you want to compile mdsw, in the CMakeLists.txt::EXAMPLES part, add ADD_SUBDIRECTORY(mdsw). 
 3) mkdir build; cd build; 
 4) cmake ..
 5) make
