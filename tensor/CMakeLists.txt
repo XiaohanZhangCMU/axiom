@@ -1,6 +1,7 @@
 get_filename_component(target ${CMAKE_CURRENT_SOURCE_DIR} NAME)   # put current folder name as target name
 include_directories(${include_directories} "include" "../pybind11/include/")
 message("${include_directories}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-literal-suffix -Wno-unused-but-set-variable -Wno-misleading-indentation -Wno-format-overflow -Wno-unused-variable -Wno-parentheses -Wno-restrict -Wno-class-memaccess")
 file (GLOB SRCS "src/*.cpp")
 pybind11_add_module(${target} ${SRCS})
 target_link_libraries(${target} PRIVATE openblas)
