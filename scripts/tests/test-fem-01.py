@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/Users/x/Downloads/GraphicsScratch/axiom/lib/')
+sys.path.append('/home/users/xzhang11/axiom/axiom/lib/')
 import mdfem
 
 
