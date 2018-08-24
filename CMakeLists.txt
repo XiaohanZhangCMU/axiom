@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4.0)
+cmake_minimum_required(VERSION 3.1.0)
 site_name(HostName)
 message("HostName = ${HostName}")
 set(HOME $ENV{HOME})
