@@ -94,6 +94,7 @@ if (CUDA_FOUND)
     endif()
 endif()
 
+# EXAMPLES
 # compile shared library to interface with python
 ADD_SUBDIRECTORY(zoo)
 ADD_SUBDIRECTORY(tensor)

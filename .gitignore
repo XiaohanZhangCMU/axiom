@@ -1,5 +1,15 @@
 *.out
+*~
+*.cn
+*.cfg
+*.pyc
+*.pbs
+*.tcl
+.ipynb*
+*.png
+*.jpg
 bin
 lib
 build
 .DS_Store
+__pycache__

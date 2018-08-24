@@ -1349,7 +1349,6 @@ int MDFrame::constrainedrelax()
 
 void MDFrame::call_potential()
 {
-    INFO_Printf("call_potential is called\n");
     double lambda, vn, gn, ds_star2, sigma, theta, fd, fr, rijnorm, y, ewall, fwall;
     int i, j, ipt, jpt;
     Vector3 ds, dr, dF, ds0, dv, gs, ds_star, sij, rij, rij_unit, vij, fij, vrand, si, ri;
@@ -9969,6 +9968,19 @@ void MDFrame::NbrList_reconstruct_use_cell_list(int iatom)
     }
     //INFO_Printf("reconstruct() finished. _current_NIC=%d _current_NNM=%d\n",_current_NIC,_current_NNM);
     /* _current_NIC and _current_NIM can be printed within TCL script */
+}
+
+//Xiaohan adds for frank partial
+void MDFrame::NbrList_fprint()
+{
+    int i, j, n, ipt, jpt;
+    FILE *fp = fopen("nn.dat","w");
+    if(fp==NULL) FATAL("NbrList_print: open file failure");
+    for(i=0;i<_NP;i++) {
+        for(j=0;j<nn[i];j++)
+            fprintf(fp," %d",nindex[i][j]);
+        fprintf(fp,"\n");
+    }
 }
 
 void MDFrame::NbrList_print() 
