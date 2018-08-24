@@ -23,9 +23,6 @@ else()
     SET(CMAKE_C_LINK_EXECUTABLE /usr/bin/ld)
     set(PYTHON_LIBRARY "/scratch/users/xzhang11/miniconda3/lib")
     set(PYTHON_INCLUDE_DIR "/scratch/users/xzhang11/miniconda3/include/python3.6m")
-    set(BOOST_ROOT "${HOME}/boost")
-    set(BOOST_INCLUDE_DIR "${BOOST_ROOT}/include")
-    set(BOOST_LIBRARIES_DIR "${BOOST_ROOT}/lib")
 endif()
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

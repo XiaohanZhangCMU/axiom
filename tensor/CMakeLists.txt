@@ -1,4 +1,15 @@
-find_package(Boost 1.66.0 COMPONENTS python3 thread system REQUIRED)
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#           BETTER DEFINE DIFFERENT MACHINES
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+set(BOOST_ROOT "${HOME}/boost")
+set(BOOST_INCLUDE_DIR "${BOOST_ROOT}/include")
+set(BOOST_LIBRARIES_DIR "${BOOST_ROOT}/lib")
+if(APPLE)
+    find_package(Boost 1.66.0 COMPONENTS python36 thread system REQUIRED)
+else()
+    find_package(Boost 1.66.0 COMPONENTS python3 thread system REQUIRED)
+endif()
+
 
 set(CPU_ONLY "On")
 find_package(CUDA)
