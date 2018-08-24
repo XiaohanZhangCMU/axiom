@@ -1,6 +1,10 @@
 *.out
 *~
 *.cn
+*.cfg
+*.pyc
+*.pbs
+*.tcl
 .ipynb*
 *.png
 *.jpg
