@@ -1,0 +1,25 @@
+#!/bin/bash
+
+export PATH="/home/xzhang11/miniconda2/bin:$PATH"
+#PBS -N frank
+#PBS -l nodes=1:ppn=24,walltime=196:00:00
+#PBS -j oe
+
+echo The master node of this job is `hostname`
+echo The working directory is `echo $PBS_O_WORKDIR`
+echo This job runs on the following nodes:
+echo `cat $PBS_NODEFILE`
+
+ncpu=`cat $PBS_NODEFILE | wc -w`
+echo "Number of processors = $ncpu "
+
+# Change to working directory
+cd $PBS_O_WORKDIR
+
+# Start Run 
+
+sleep 1
+#python generate_network.py
+python scripts/work/frankMEP/global_search.py
+
+wait

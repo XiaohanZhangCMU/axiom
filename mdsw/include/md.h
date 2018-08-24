@@ -1036,6 +1036,7 @@ public:
     void NbrList_reconstruct_use_link_list(int iatom=-1); /* use link list with Verlist */
     
     void NbrList_print();        /* for debug use */
+    void NbrList_fprint();       /* for frankMEP */
     void NbrList_refresh();
     bool NbrList_needrefresh();
     void NbrList_init(int, int);
@@ -1452,6 +1453,17 @@ public:
     inline void set_atomradius(std::vector<double> v) { 
         for(int i = 0;i<MAXSPECIES;i++) atomradius[i] = v[i];
     }
+
+    //input
+    inline std::vector<double> get_input() { 
+        std::vector<double> v;
+        for(int i = 0;i<MAXINPUTLEN;i++) v.push_back(input[i]); 
+        return v;
+    }
+    inline void set_input(std::vector<double> v) { 
+        for(int i = 0;i<MAXINPUTLEN;i++) input[i] = v[i];
+    }
+
 
 };
 

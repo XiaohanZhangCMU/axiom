@@ -87,6 +87,7 @@ PYBIND11_MODULE(mdsw, m) {
         .def_property("rotateangles", &MDFrame::get_rotateangles, &MDFrame::set_rotateangles, "property: roateangles")
         .def_property("plot_color_windows", &MDFrame::get_plot_color_windows, &MDFrame::set_plot_color_windows, "property: plot_color_windows")
         .def_property("plot_limits", &MDFrame::get_plot_limits, &MDFrame::set_plot_limits, "property: plot_limits")
+        .def_property("input", &MDFrame::get_input, &MDFrame::set_input, "property: input")
 
         .def("call_potential", &MDFrame::call_potential)
         .def("eval", &MDFrame::eval)
@@ -99,7 +100,16 @@ PYBIND11_MODULE(mdsw, m) {
         .def("rotate",  &MDFrame::rotate)
         .def("alloccolors", &MDFrame::alloccolors)
         .def("refreshnnlist", &MDFrame::NbrList_refresh)
-
+        .def("fprintnnlist",&MDFrame::NbrList_fprint)
+        .def("saveH", &MDFrame::saveH)
+        .def("changeH_keepR", &MDFrame::redefinepbc)
+        .def("changeH_keepS", &MDFrame::shiftbox)
+        .def("fixatoms_by_position", &MDFrame::fixatoms_by_position)
+        .def("setfixedatomsgroup", &MDFrame::setfixedatomsgroup)
+        .def("freeallatoms", &MDFrame::freeallatoms)
+        .def("movegroup", &MDFrame::movegroup)
+        .def("writeatomeyecfg", &MDFrame::writeatomeyecfgfile)
+        .def("SHtoR", &MDFrame::SHtoR)
         .def_readwrite("plotfreq", &MDFrame::plotfreq)
         .def_readwrite("plot_atom_info", &MDFrame::plot_atom_info)
         .def_readwrite("bondradius", &MDFrame::bondradius)
@@ -108,6 +118,10 @@ PYBIND11_MODULE(mdsw, m) {
         .def_readwrite("conj_itmax", &MDFrame::conj_itmax)
         .def_readwrite("conj_fevalmax", &MDFrame::conj_fevalmax)
         .def_readwrite("conj_fixbox",   &MDFrame::conj_fixbox)
+        .def_readwrite("NNM",   &MDFrame::_NNM)
+        .def_readwrite("vacuumratio",   &MDFrame::_VACUUMRATIO)
+
+        .def_readwrite("NP",&MDFrame::_NP)
 
         /* https://stackoverflow.com/questions/44659924/returning-numpy-arrays-via-pybind11 */
         .def("SR", [](MDFrame &m) {
@@ -141,6 +155,60 @@ PYBIND11_MODULE(mdsw, m) {
                   foo, // the data pointer
                   free_when_done); // numpy array references this parent
 	        })
+
+        .def("H", [](MDFrame &m) {
+            double *foo = reinterpret_cast<double*> (m._H.element);
+            //Matrix33 *foo = &(m._H);
+	        /* Create a Python object that will free the allocated memory when destroyed: */
+	        bp::capsule free_when_done(foo, [](void *H) {
+	            double *foo = reinterpret_cast<double *>(H);
+	            std::cerr << "Element [0] = " << foo[0] << "\nfreeing memory @ " << H << std::endl;
+	            delete[] foo;
+	          });
+
+	        return bp::array_t<double>(
+                  {3, 3}, // shape
+                  {3*8, 8}, // C-style contiguous strides for double
+                  foo, // the data pointer
+                  free_when_done); // numpy array references this parent
+	        })
+
+        //xx, xy, xz, yx, yy, yz, zx, zy, zz
+        //00  01  02  10  11  12  20  21  22
+        .def("TSTRESS", [](MDFrame &m) {
+            double *foo = reinterpret_cast<double*> (m._TOTSTRESS.element);
+	        /* Create a Python object that will free the allocated memory when destroyed: */
+	        bp::capsule free_when_done(foo, [](void *TSTRESS) {
+	            double *foo = reinterpret_cast<double *>(TSTRESS);
+	            std::cerr << "Element [0] = " << foo[0] << "\nfreeing memory @ " << TSTRESS << std::endl;
+	            delete[] foo;
+	          });
+
+	        return bp::array_t<double>(
+                  {3, 3}, // shape
+                  {3*8, 8}, // C-style contiguous strides for double
+                  foo, // the data pointer
+                  free_when_done); // numpy array references this parent
+	        })
+
+        //xx, xy, xz, yx, yy, yz, zx, zy, zz
+        //00  01  02  10  11  12  20  21  22
+        .def("TSTRESSinMPa", [](MDFrame &m) {
+            double *foo = reinterpret_cast<double*> (m._TOTSTRESSinMPa.element);
+	        /* Create a Python object that will free the allocated memory when destroyed: */
+	        bp::capsule free_when_done(foo, [](void *TSTRESSinMPa) {
+	            double *foo = reinterpret_cast<double *>(TSTRESSinMPa);
+	            std::cerr << "Element [0] = " << foo[0] << "\nfreeing memory @ " << TSTRESSinMPa << std::endl;
+	            delete[] foo;
+	          });
+
+	        return bp::array_t<double>(
+                  {3, 3}, // shape
+                  {3*8, 8}, // C-style contiguous strides for double
+                  foo, // the data pointer
+                  free_when_done); // numpy array references this parent
+	        })
+
         ;
 
     bp::class_<SWFrame, MDFrame, Py_SWFrame>(m,"SWFrame", bp::buffer_protocol())
