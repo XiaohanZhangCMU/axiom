@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/users/xzhang11/axiom/axiom/lib/')
+sys.path.append('../..//lib/')
 import mdfem
 
 

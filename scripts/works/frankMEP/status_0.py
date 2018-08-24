@@ -3,8 +3,8 @@ from OpenGL.GLU import *
 from OpenGL.GL import *
 import sys
 
-sys.path.append('/Users/x/Downloads/GraphicsScratch/axiom/lib/')
-sys.path.append('/Users/x/Downloads/GraphicsScratch/axiom/scripts/tests/')
+sys.path.append('../../../lib/')
+sys.path.append('../../tests/')
 import mdsw
 from View import Viewer
 

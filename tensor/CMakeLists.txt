@@ -1,3 +1,53 @@
+find_package(Boost 1.66.0 COMPONENTS python3 thread system REQUIRED)
+
+set(CPU_ONLY "On")
+find_package(CUDA)
+if (APPLE)
+    # message("Turn off CUDA on OSX.")
+    add_definitions(-DCPU_ONLY)
+    set(CPU_ONLY "On")
+else()
+    if(CUDA_FOUND)
+        option (CUDA_ENFORCE_HOST_COMPILER "Force nvcc to use the same compiler used to compile .c(pp) files insted of gcc/g++" ON)
+        if(${HostName} MATCHES "sh-*")
+            # message("On Sherlock2.0. Use code=sm_61")
+            set(CUDA_ARCH -gencode;arch=compute_61,code=sm_61)
+        else()
+            # message("On Rice or Sherlock1.0. Use code=sm_35")
+            set(CUDA_ARCH -gencode;arch=compute_35,code=sm_35)
+        endif()
+
+        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDA_ARCH} -std=c++11")
+        file (GLOB AXIOM_CUDA_SRCS "src/*.cu" "src/tensor.cpp")
+        cuda_add_library(cuda_axiom SHARED ${AXIOM_CUDA_SRCS})
+
+        target_link_libraries(cuda_axiom cublas)
+        set_target_properties(cuda_axiom PROPERTIES LIBRARY_OUTPUT_DIRECTORY "../lib")
+    else()
+        # message("Unable to find CUDA.")
+        add_definitions(-DCPU_ONLY)
+        set(CPU_ONLY "On")
+    endif()
+endif()
+
+if (CUDA_FOUND)
+    if(NOT CPU_ONLY)
+        target_link_libraries(axiomlib cuda_axiom cublas )
+    endif()
+endif()
+
+# These lines are machine dependent.
+if("${HostName}" MATCHES "rice*" )
+    message("On rice: add self-defined blas and cuda library")
+    include_directories(${include_directories} /usr/local/opt/openblas/include)
+    link_directories   (${link_directories} ${PYTHON_LIBRARY} /usr/local/opt/openblas/lib /usr/local/cuda/lib64 ${BOOST_LIBRARIES_DIR})
+endif()
+if(APPLE)
+    # message("On OSX: add self-defined blas library")
+    include_directories(${include_directories} /usr/local/opt/openblas/include)
+    link_directories   (${link_directories} ${PYTHON_LIBRARY} /usr/local/opt/openblas/lib ${BOOST_LIBRARIES_DIR} )
+endif()
+
 get_filename_component(target ${CMAKE_CURRENT_SOURCE_DIR} NAME)   # put current folder name as target name
 include_directories(${include_directories} "include" "../pybind11/include/")
 message("${include_directories}")
@@ -6,37 +56,4 @@ file (GLOB SRCS "src/*.cpp")
 pybind11_add_module(${target} ${SRCS})
 target_link_libraries(${target} PRIVATE openblas)
 set_target_properties(${target} PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../lib/")
-
-
-
-
-
-# set(target "tmpexe")
-# #add_executable(${target} ${SRCS})
-# add_executable(${target} src/main.cpp ${SRCS})
-# target_compile_options(${target} PUBLIC ${PYBIND11_CPP_STANDARD})
-# #pybind11_add_exe(${target} ${SRCS})
-# # add_definitions(-c)
-#
-# #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -c")
-#
-# #set_target_properties(${target} PROPERTIES PREFIX "" RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/")
-# #set_target_properties(${target} PROPERTIES PREFIX "" RUNTIME_OUTPUT_DIRECTORY "./")
-# set(EXECUTABLE_OUTPUT_PATH /Users/x/)
-#
-#
-# message("runtime=${RUNTIME_OUTPUT_DIRECTORY}")
-# message("boost = ${Boost_LIBRARIES}")
-# message("curr = ${CMAKE_CURRENT_SOURCE_DIR}")
-# target_link_libraries(${target} PRIVATE openblas python3.6m ${Boost_LIBRARIES})
-#
-# # # compile executable
-# # # pybind11_add_exe(${target}.exe ${SRCS})
-# # add_executable(${target}.exe ${SRC})
-# # target_include_directories(${target_name}.exe "${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include")
-# # target_link_libraries(${target}.exe PRIVATE openblas python3.6m ${Boost_LIBRARIES})
-# # set_target_properties(${target}.exe PROPERTIES PREFIX ""  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/")
-# #
-# # # libc++ or libstdc++? That is a question to resolve
-# # SET( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libstdc++")
 

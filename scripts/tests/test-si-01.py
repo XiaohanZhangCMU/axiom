@@ -2,12 +2,8 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from OpenGL.GL import *
 import sys
-<<<<<<< HEAD
-sys.path.append('/home/users/xzhang11/axiom/axiom/lib/')
-=======
 
-sys.path.append('/Users/x/Downloads/GraphicsScratch/axiom/lib/')
->>>>>>> ec39168df123883212aed68f74fdd3e166654b56
+sys.path.append('../../lib/')
 import mdsw
 from View import Viewer
 

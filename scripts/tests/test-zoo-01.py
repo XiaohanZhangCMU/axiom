@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../../lib/')
 from axiomlib import Animal
 
 a = Animal("zoo")
