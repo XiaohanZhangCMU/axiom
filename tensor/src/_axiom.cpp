@@ -32,6 +32,13 @@ PYBIND11_MODULE(tensor, m) {
         .def("shape", &Tensor<Dtype>::shape, bp::return_value_policy::reference)
         .def("copy",  &Tensor<Dtype>::copy, bp::return_value_policy::reference)
         .def("set_cpu_data", &Tensor<Dtype>::set_cpu_data, bp::return_value_policy::automatic)
+        .def("L1", &Tensor<Dtype>::L1 )
+        .def("L2", &Tensor<Dtype>::L2 )
+        .def("Reshape", &Tensor<Dtype>::Reshape)
+        .def("ReshapeLike", &Tensor<Dtype>::ReshapeLike)
+
+
+
         ;
 
 } /* PYBIND11_MODULE */

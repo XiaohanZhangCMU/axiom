@@ -33,6 +33,7 @@ project (AXIOM)
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
     message(FATAL_ERROR "\nIn-source builds are not allowed.  Clean up by:\n rm -rf CMakeCache.txt CMakeFiles")
 endif()
+
 find_package(PythonLibs 3.6 REQUIRED)
 find_package(PythonInterp 3.6 REQUIRED)
 include_directories(${include_directories} ${CPLUS_INCLUDE_DIR} ${PYTHON_INCLUDE_DIR})
