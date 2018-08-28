@@ -1,14 +1,14 @@
 # put current folder name as target name
-get_filename_component(target ${CMAKE_CURRENT_SOURCE_DIR} NAME) 
+get_filename_component(target ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 set(cuda_target "cuda_${target}")
 
 set(CPU_ONLY "Off")
 
-if (APPLE) 
+if (APPLE)
     # message("Always turn off CUDA on OSX.")
     set(CPU_ONLY "On")
 endif()
-if (CPU_ONLY) 
+if (CPU_ONLY)
     add_definitions(-DCPU_ONLY)
     message("Add defintion cpu_only")
 endif()
@@ -19,14 +19,22 @@ set(BOOST_LIBRARIES_DIR "${BOOST_ROOT}/lib")
 message("BOOST_ROOT = ${BOOST_ROOT}")
 
 # These lines are machine dependent.
-set(BLAS_INCLUDE_DIR "/usr/local/opt/openblas/include")
-set(BLAS_LIB_DIR "/usr/local/opt/openblas/lib")
+if(APPLE)
+    set(BLAS_INCLUDE_DIR "/usr/local/opt/openblas/include")
+    set(BLAS_LIB_DIR "/usr/local/opt/openblas/lib")
+else()
+    if(${HostName} MATCHES "x" )
+        #set(BLAS_INCLUDE_DIR "/usr/include/x86_64-linux-gnu/")
+        #set(BLAS_LIB_DIR "/usr/lib/x86_64-linux-gnu/openblas/")
+    endif()
+endif()
+
 #set(CUBLAS_LIB_DIR "/share/software/user/open/cuda/9.2.148/lib64")
 
 if(APPLE)
-    find_package(Boost 1.66.0 COMPONENTS python36 thread system REQUIRED)
+	# find_package(Boost 1.66.0 COMPONENTS python36 thread system REQUIRED)
 else()
-    find_package(Boost 1.66.0 COMPONENTS python3 thread system REQUIRED)
+	# find_package(Boost 1.66.0 COMPONENTS python3 thread system REQUIRED)
 endif()
 
 include_directories(${include_directories} ${BLAS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR} "include" "../pybind11/include/")
@@ -47,7 +55,7 @@ if(NOT CPU_ONLY)
     endif()
 
     set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDA_ARCH} -std=c++11")
-     
+
     file (GLOB AXIOM_CUDA_SRCS "src/*.cu" "src/axiom.cpp")
     cuda_add_library(${cuda_target} SHARED ${AXIOM_CUDA_SRCS})
     #add_library(${cuda_target} SHARED ${AXIOM_CUDA_SRCS})

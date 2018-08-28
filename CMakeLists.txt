@@ -23,6 +23,10 @@ else()
     #SET(CMAKE_C_LINK_EXECUTABLE /usr/bin/ld)
     set(PYTHON_LIBRARY "/scratch/users/xzhang11/miniconda3/lib")
     set(PYTHON_INCLUDE_DIR "/scratch/users/xzhang11/miniconda3/include/python3.6m")
+    if(${HostName} MATCHES "x")  # Home machine (Ubuntu)
+        set(PYTHON_LIBRARY "/home/x/miniconda3/lib")
+        set(PYTHON_INCLUDE_DIR "/home/x/miniconda3/include/python3.6m")
+    endif()
 endif()
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
