@@ -21,7 +21,7 @@ message("BOOST_ROOT = ${BOOST_ROOT}")
 # These lines are machine dependent.
 set(BLAS_INCLUDE_DIR "/usr/local/opt/openblas/include")
 set(BLAS_LIB_DIR "/usr/local/opt/openblas/lib")
-set(CUBLAS_LIB_DIR "/usr/local/cuda/lib64")
+#set(CUBLAS_LIB_DIR "/share/software/user/open/cuda/9.2.148/lib64")
 
 if(APPLE)
     find_package(Boost 1.66.0 COMPONENTS python36 thread system REQUIRED)
@@ -48,12 +48,12 @@ if(NOT CPU_ONLY)
 
     set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDA_ARCH} -std=c++11")
      
-    file (GLOB AXIOM_CUDA_SRCS "src/*.cu")
-    #cuda_add_library(cuda_axiom SHARED ${AXIOM_CUDA_SRCS})
-    add_library(${cuda_target} SHARED ${AXIOM_CUDA_SRCS})
+    file (GLOB AXIOM_CUDA_SRCS "src/*.cu" "src/axiom.cpp")
+    cuda_add_library(${cuda_target} SHARED ${AXIOM_CUDA_SRCS})
+    #add_library(${cuda_target} SHARED ${AXIOM_CUDA_SRCS})
     #add_executable(${cuda_target} ${AXIOM_CUDA_SRCS})
-    set_target_properties(${cuda_target} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-    target_link_libraries(${cuda_target} cublas ${CUDA_LIBRARIES})
+    #    set_target_properties(${cuda_target} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    target_link_libraries(${cuda_target} ${CUDA_CUBLAS_LIBRARIES} ${CUDA_LIBRARIES})
     set_target_properties(${cuda_target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../lib")
 endif()
 

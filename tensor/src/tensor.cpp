@@ -154,7 +154,7 @@ Dtype Tensor<Dtype>::L2() const {
     sumsq = cpu_dot(count_, data, data);
     break;
   case SyncedMemory::HEAD_AT_GPU:
-  case SyncedMemory::SYNCED:
+  case SyncedMemory::SYNCED: //if data_ is already synced to cpu_data
 #ifndef CPU_ONLY
     data = gpu_data();
     gpu_dot(count_, data, data, &sumsq);

@@ -2,6 +2,7 @@
 #define __TENSOR_HPP__
 
 #include <algorithm>
+#include <memory>
 #include <string>
 #include <vector>
 #include <climits>
@@ -17,15 +18,18 @@ using namespace std;
 
 template <typename Dtype>
 void Copy(const int N, const Dtype* X, Dtype* Y) {
+    std::cout<<"I am here 1"<<std::endl;
   if (X != Y) {
     if (Axiom::mode() == Axiom::GPU) {
 #ifndef CPU_ONLY
       CUDA_CHECK(cudaMemcpy(Y, X, sizeof(Dtype) * N, cudaMemcpyDefault));
+    std::cout<<"I am here 2"<<std::endl;
 #else
       NO_GPU;
 #endif
     } else {
       memcpy(Y, X, sizeof(Dtype) * N); 
+    std::cout<<"I am here 3"<<std::endl;
     }
   }
 }
@@ -55,7 +59,7 @@ class Tensor {
   /* Assume reshaped. This is a dangerous way of assigning value to tensor */
   void reinit(const Dtype* src, unsigned int len);
   
-  inline const shared_ptr<SyncedMemory>& data() const {
+  inline const std::shared_ptr<SyncedMemory>& data() const {
     CHECK(data_);
     return data_;
   }
@@ -79,8 +83,8 @@ class Tensor {
   Tensor<Dtype>& operator= (const Tensor<Dtype>& otensor);
   
  protected:
-  shared_ptr<SyncedMemory> data_;
-  shared_ptr<SyncedMemory> shape_data_;
+  std::shared_ptr<SyncedMemory> data_;
+  std::shared_ptr<SyncedMemory> shape_data_;
   vector<unsigned int> shape_;
   unsigned int count_;
   unsigned int capacity_;
