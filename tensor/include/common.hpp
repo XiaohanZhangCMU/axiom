@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <cstring>
+#include <memory> //for shared_ptr
 
 //#define CPU_ONLY
 

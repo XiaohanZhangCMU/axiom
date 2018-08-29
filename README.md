@@ -22,7 +22,7 @@
 4) cmake ..
 5) make  
 Optional packages for mdsw and mdfem. Required if you want to visualize atoms.   
-6) pip install PyOpenGL PyOpenGL_accelerate  
+6) pip install PyOpenGL PyOpenGL_accelerate (On Ubuntu or Linux, you need to do: sudo apt-get install python-opengl as well)
 7) python3 -m pip install Pillow   
 
 ## Examples:

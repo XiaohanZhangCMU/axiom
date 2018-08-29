@@ -154,7 +154,7 @@ Dtype Tensor<Dtype>::L2() const {
     sumsq = cpu_dot(count_, data, data);
     break;
   case SyncedMemory::HEAD_AT_GPU:
-  case SyncedMemory::SYNCED:
+  case SyncedMemory::SYNCED: //if data_ is already synced to cpu_data
 #ifndef CPU_ONLY
     data = gpu_data();
     gpu_dot(count_, data, data, &sumsq);
@@ -177,6 +177,16 @@ void Tensor<Dtype>::reinit(const Dtype* source, unsigned int len) {
   CHECK_EQ(len,count_); 
   Copy(count_,source, static_cast<Dtype*>(data_->mutable_cpu_data()));
 }
+
+
+/* https://pybind11.readthedocs.io/en/stable/advanced/pycpp/numpy.html */
+void get(py::array_t<double> xs) {
+    py::buffer_info info = xs.request();
+    auto ptr = static_cast<double *>(info.ptr);
+    this->Reshape(info.shape);
+    this->reinit(info.ptr, info.size());
+} 
+
 
 template <typename Dtype>
 Tensor<Dtype> Tensor<Dtype>::operator[] (const unsigned int index) const {

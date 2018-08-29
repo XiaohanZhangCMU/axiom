@@ -94,15 +94,7 @@ def get_nbrlist(totIdx, cfg, maxnbrs, cutoff, nbrlistname, opt):
 # Return a list of atom ID that is next but not within the nucleus
 def find_bdy_atoms(nbrlist, nucleus, totIdx, cfg):
   B = nbrlist[nucleus,:]
-  #print("B.size = {0}".format(B.size))
   A = np.setdiff1d(np.extract(B>=0,B), nucleus)
-  #print("A.size = {0}".format(A.size))
-  #print(A)
-  #(totIdx, atomIdx, cfg, H, normal, d, pt0, nbrlist, slice_nbrlist_u, slice_nbrlist_d, pairs)= load_status_0('runs/frankMEP/test_db_0.05/') 
-  #writecncfg(cfg[A,:], H, "tmp")
-  #print("totIdx.size = {0}".format(totIdx.size))
-  #print(totIdx)
-  #print(np.intersect1d(totIdx, A))
   return np.intersect1d(totIdx, A)
 
 def make_pairs(totIdx_1, totIdx_2, cfg):
@@ -145,58 +137,4 @@ def calculate_frk_energy(nucleus, strain, dirname, id0):
   energy = np.loadtxt(dirname+'EPOT_2.dat')
   return energy
 
-# Load all information from status == 0, including:
-# System: cfg, H, atomIdx (simply 1:NP, may not need it)
-# Slice: A*x+B*y+C*z-D=0
-# Atom id of the whole slice: totIdx
-def load_status_0(dirname):
-  totIdx = np.load(dirname+"totIdx.npy")
-  atomIdx = np.load(dirname+"atomIdx.npy")
-  cfg = np.load(dirname+"cfg.npy")
-  H = np.load(dirname+"H.npy")
-  ctrlparams = np.load(dirname+"ctrlparams.npy")
-  normal= ctrlparams[0:3]; 
-  d = ctrlparams[3];
-  pt0 = ctrlparams[4:7]
-  nbrlist = np.load(dirname+"nbrlist.npy")
-  slice_nbrlist_u = np.load(dirname+"slice_nbrlist_u.npy")
-  slice_nbrlist_d = np.load(dirname+"slice_nbrlist_d.npy")
-  pairs = np.load(dirname+"pairs.npy")
-  return (totIdx, atomIdx, cfg, H, normal, d, pt0, nbrlist, slice_nbrlist_u, slice_nbrlist_d, pairs)
-
-def setget_db(nucleus, strain, cohesv, dirname, id0):
-  (totIdx, atomIdx, cfg, H, normal, d, pt0, nbrlist, slice_nbrlist_u, slice_nbrlist_d,pairs)= load_status_0(dirname) 
-
-  db_file = dirname+"db_"+strain+".2rm";
-  if os.path.exists(db_file+".pkl"):
-    db  = load_obj(db_file)
-  else:
-    db = { }
-
-  bitarr = nucleus2bits(nucleus, totIdx)
-  bitstr = bits2str(bitarr)
-  if bitstr in db:
-    print("data base has = {0} data points".format(len(db)))
-    return db[bitstr]
-  else:
-    energy = calculate_frk_energy(nucleus, strain, dirname, id0)
-    energy -= cohesv * nucleus.size;
-    db[bitstr] = energy
-    save_obj(db, db_file)
-    return energy
-
-def test_single_graph_setget_db(nucleus, energy, dirname):
-  (totIdx, atomIdx, cfg, H, normal, d, pt0, nbrlist, slice_nbrlist_u, slice_nbrlist_d,pairs)= load_status_0(dirname) 
-
-  db_file = dirname+"test_single_graph_db";
-  if os.path.exists(db_file+".pkl"):
-    db  = load_obj(db_file)
-  else:
-    db = { }
-
-  bitarr = nucleus2bits(nucleus, totIdx)
-  bitstr = bits2str(bitarr)
-  db[bitstr] = energy
-  save_obj(db, db_file)
-  return energy
 
