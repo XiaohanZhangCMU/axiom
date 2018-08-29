@@ -17,7 +17,7 @@ def test_Tensor():
 # print("tensor see {0}".format(t.count))
   m = t.L2
 # print("tensor see {0}".format(m))
-  t.reshape(1)
+  t.Reshape(1)
   return error
 
 def test_MemOps():
@@ -45,7 +45,7 @@ def test_MemOps():
   if sum(t3.data - arr).sum() != 0:
     error += 1
   return error
-   
+
 def test_GPU():
   error = 0
   t = tensor.Tensor()
@@ -66,7 +66,7 @@ def main(argv):
   dict_tests = {}
   dict_tests['test_Tensor']      = test_Tensor()
   dict_tests['test_MemOps']      = test_MemOps()
-  dict_tests['test_GPU']         = test_GPU() 
+  dict_tests['test_GPU']         = test_GPU()
 
   for key in dict_tests:
     if dict_tests[key] == 0:
