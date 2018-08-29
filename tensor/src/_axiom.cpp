@@ -10,6 +10,8 @@
 #include <memory>
 #include <pybind11/pybind11.h>
 
+#include <pybind11/operators.h>
+
 #include <pybind11/stl_bind.h>
 #include <pybind11/stl.h>
 
@@ -51,6 +53,9 @@ PYBIND11_MODULE(tensor, m) {
         .def("set_gpu_data", &Tensor<Dtype>::set_gpu_data)
         .def("L1", &Tensor<Dtype>::L1 )
         .def("L2", &Tensor<Dtype>::L2 )
+        .def("get",&Tensor<Dtype>::get)
+//        .def(bp::self = bp::self)
+//        .def(bp::self [] unsigned int() )
 
         ;
 

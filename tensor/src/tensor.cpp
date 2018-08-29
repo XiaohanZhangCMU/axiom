@@ -178,6 +178,16 @@ void Tensor<Dtype>::reinit(const Dtype* source, unsigned int len) {
   Copy(count_,source, static_cast<Dtype*>(data_->mutable_cpu_data()));
 }
 
+
+/* https://pybind11.readthedocs.io/en/stable/advanced/pycpp/numpy.html */
+void get(py::array_t<double> xs) {
+    py::buffer_info info = xs.request();
+    auto ptr = static_cast<double *>(info.ptr);
+    this->Reshape(info.shape);
+    this->reinit(info.ptr, info.size());
+} 
+
+
 template <typename Dtype>
 Tensor<Dtype> Tensor<Dtype>::operator[] (const unsigned int index) const {
   CHECK_LT(index, shape_[0]);

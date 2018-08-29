@@ -54,16 +54,16 @@ def test_MemOps():
 def test_GPU():
   error = 0
   t = tensor.Tensor()
-  #foo = t.gpu_data(); # data copied cpu->gpu.
-  #foo = t.cpu_data(); # no data copied since both have up-to-date contents.
-  #bar = t.mutable_gpu_data(); # no data copied.
+  foo = t.gpu_data(); # data copied cpu->gpu.
+  foo = t.cpu_data(); # no data copied since both have up-to-date contents.
+  bar = t.mutable_gpu_data(); # no data copied.
   # ... some operations ...
-  #bar = t.mutable_gpu_data(); # no data copied when we are still on GPU.
-  #foo = t.cpu_data(); # data copied gpu->cpu, since the gpu side has modified the data
-  #foo = t.gpu_data(); # no data copied since both have up-to-date contents
-  #bar = t.mutable_cpu_data(); # still no data copied.
-  #bar = t.mutable_gpu_data(); # data copied cpu->gpu.
-  #bar = t.mutable_cpu_data(); # data copied gpu->cpu.
+  bar = t.mutable_gpu_data(); # no data copied when we are still on GPU.
+  foo = t.cpu_data(); # data copied gpu->cpu, since the gpu side has modified the data
+  foo = t.gpu_data(); # no data copied since both have up-to-date contents
+  bar = t.mutable_cpu_data(); # still no data copied.
+  bar = t.mutable_gpu_data(); # data copied cpu->gpu.
+  bar = t.mutable_cpu_data(); # data copied gpu->cpu.
   return 0
 
 

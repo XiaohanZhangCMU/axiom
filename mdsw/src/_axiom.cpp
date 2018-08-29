@@ -120,6 +120,7 @@ PYBIND11_MODULE(mdsw, m) {
         .def_readwrite("conj_fixbox",   &MDFrame::conj_fixbox)
         .def_readwrite("NNM",   &MDFrame::_NNM)
         .def_readwrite("vacuumratio",   &MDFrame::_VACUUMRATIO)
+        .def_readwrite("EPOT",   &MDFrame::_EPOT)
 
         .def_readwrite("NP",&MDFrame::_NP)
 
@@ -129,7 +130,7 @@ PYBIND11_MODULE(mdsw, m) {
 	        /* Create a Python object that will free the allocated memory when destroyed: */
 	        bp::capsule free_when_done(foo, [](void *SR) {
 	            double *foo = reinterpret_cast<double *>(SR);
-	            std::cerr << "Element [0] = " << foo[0] << "\nfreeing memory @ " << SR << std::endl;
+	            std::cerr << "SR [0] = " << foo[0] << "\nfreeing memory @ " << SR << std::endl;
 	            delete[] foo;
 	          });
 
@@ -145,7 +146,7 @@ PYBIND11_MODULE(mdsw, m) {
 	        /* Create a Python object that will free the allocated memory when destroyed: */
 	        bp::capsule free_when_done(foo, [](void *fixed) {
 	            int *foo = reinterpret_cast<int *>(fixed);
-	            std::cerr << "Element [0] = " << foo[0] << "\nfreeing memory @ " << fixed << std::endl;
+	            std::cerr << "fixed [0] = " << foo[0] << "\nfreeing memory @ " << fixed << std::endl;
 	            delete[] foo;
 	          });
 
@@ -162,13 +163,45 @@ PYBIND11_MODULE(mdsw, m) {
 	        /* Create a Python object that will free the allocated memory when destroyed: */
 	        bp::capsule free_when_done(foo, [](void *H) {
 	            double *foo = reinterpret_cast<double *>(H);
-	            std::cerr << "Element [0] = " << foo[0] << "\nfreeing memory @ " << H << std::endl;
+	            std::cerr<<"H [0]="<<foo[0]<<"\nfreeing memory @ "<<H<<std::endl;
 	            delete[] foo;
 	          });
 
 	        return bp::array_t<double>(
                   {3, 3}, // shape
                   {3*8, 8}, // C-style contiguous strides for double
+                  foo, // the data pointer
+                  free_when_done); // numpy array references this parent
+	        })
+
+        .def("nn", [](MDFrame &m) {
+            int *foo = reinterpret_cast<int*> (m.nn);
+	        /* Create a Python object that will free the allocated memory when destroyed: */
+	        bp::capsule free_when_done(foo, [](void *nn) {
+	            int *foo = reinterpret_cast<int *>(nn);
+	            std::cerr << "nn [0] = " << foo[0] << "\nfreeing memory @ " << nn << std::endl;
+	            delete[] foo;
+	          });
+
+	        return bp::array_t<int>(
+                  {m._NP}, // shape
+                  {4}, // C-style contiguous strides for double
+                  foo, // the data pointer
+                  free_when_done); // numpy array references this parent
+	        })
+
+        .def("nindex", [](MDFrame &m) {
+            int *foo = reinterpret_cast<int*> (m.nindex);
+	        /* Create a Python object that will free the allocated memory when destroyed: */
+	        bp::capsule free_when_done(foo, [](void *nindex) {
+	            int *foo = reinterpret_cast<int *>(nindex);
+	            std::cerr << "nindex [0] = " << foo[0] << "\nfreeing memory @ " << nindex << std::endl;
+	            delete[] foo;
+	          });
+
+	        return bp::array_t<int>(
+                  {m._NP,m._NNM }, // shape
+                  {m._NNM*4, 4}, // C-style contiguous strides for double
                   foo, // the data pointer
                   free_when_done); // numpy array references this parent
 	        })
@@ -180,7 +213,7 @@ PYBIND11_MODULE(mdsw, m) {
 	        /* Create a Python object that will free the allocated memory when destroyed: */
 	        bp::capsule free_when_done(foo, [](void *TSTRESS) {
 	            double *foo = reinterpret_cast<double *>(TSTRESS);
-	            std::cerr << "Element [0] = " << foo[0] << "\nfreeing memory @ " << TSTRESS << std::endl;
+	            std::cerr << "TSTRESS [0] = " << foo[0] << "\nfreeing memory @ " << TSTRESS << std::endl;
 	            delete[] foo;
 	          });
 
@@ -198,7 +231,7 @@ PYBIND11_MODULE(mdsw, m) {
 	        /* Create a Python object that will free the allocated memory when destroyed: */
 	        bp::capsule free_when_done(foo, [](void *TSTRESSinMPa) {
 	            double *foo = reinterpret_cast<double *>(TSTRESSinMPa);
-	            std::cerr << "Element [0] = " << foo[0] << "\nfreeing memory @ " << TSTRESSinMPa << std::endl;
+	            std::cerr << "TSTRESSinMPa [0] = " << foo[0] << "\nfreeing memory @ " << TSTRESSinMPa << std::endl;
 	            delete[] foo;
 	          });
 
