@@ -11,17 +11,8 @@ def removeNucleusAtoms(cfg, nucleus, NP):
 
 # Return a list of atom adjacent to, but not in, nucleus
 def find_nbr_atoms(nbrlist, nucleus, totIdx):
-    print("I am here 2.0")
-    print(nbrlist.shape)
-    print(nbrlist)
-    print(nucleus.shape)
-    print(nucleus)
     B = nbrlist[nucleus,:]
-    print("I am here 2.1")
-    print(B.shape)
     A = np.setdiff1d(np.extract(B>=0,B), nucleus)
-    print("I am here 2.2")
-    print(A.shape)
     return np.intersect1d(totIdx, A)
 
 def save_obj(obj, name ):

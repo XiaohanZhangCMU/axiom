@@ -278,7 +278,7 @@ class MDobj(object):
         #self.view.rendering()
 
         bitstr = bits2str(nucleus2bits(nucleus, self.totIdx))
-        if 0: #bitstr in db: ???????????????????????????????????????
+        if bitstr in db: 
             print("data base has = {0} data points".format(len(db)))
             return nucleus, db[bitstr], False, {} #want to maximize the energy cost
         else:

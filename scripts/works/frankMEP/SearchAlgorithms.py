@@ -39,7 +39,6 @@ class GreedySearch(object):
                 fp.write("nucleus = {0}\n".format(nucleus))
                 fp.write("bdyatoms_u.size = {0}\n".format(bdyatoms_u.size))
 
-            print("I am here 3")
             for atom_I in bdyatoms_u:
                 istep0 -= 1
                 i,j = np.where(swobj.pairs==atom_I)
@@ -50,7 +49,6 @@ class GreedySearch(object):
                 if energy < MINenergy:
                     MINenergy = energy
 
-                print("I am here 4")
                 MINatom_I = atom_I
                 MINatom_J = atom_J
                 with open(swobj.dirname+"B.log", "a") as fp:
