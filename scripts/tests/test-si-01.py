@@ -88,12 +88,30 @@ sw.finalcnfile = "relaxed.cn"
 sw.writecn(0,False)
 sw.eval()
 
+# Test View and render
 #render("mdsw")
 #open_window(sw)
 view = Viewer(sw, 600, 600)
 view.rendering()
 sw.sleep()
 relax_fixbox(sw,1000)
+
+
+# Test nn and nbrlist
+sw.refreshnnlist()
+sw.fprintnnlist()
+nbrlist = sw.nindex() # this actually bind to nindex_mem
+nn = sw.nn()
+
+with open("pynn.dat", "w") as fp:
+    for k in range(self.sw.NP): #nbrlist.shape[0]):
+        tmp = ''
+        for j in range(self.nn[k]):
+            tmp = tmp+ ' ' + str(self.nbrlist[k,j])
+        fp.write(tmp)
+        fp.write('\n')
+print("You should do diff -wB pynn.dat nn.dat and there should be no differences. -wB is optional.")
+
 
 
 

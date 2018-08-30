@@ -7,7 +7,7 @@ import sys
 from PIL import Image
 
 class Viewer(object):
-    def __init__(self, sim, width, height, display=None):
+    def __init__(self, sim, width, height, atomplotlist=[], display=None):
         #-----------
         # VARIABLES
         #-----------
@@ -30,13 +30,15 @@ class Viewer(object):
         self.xTrans = 0.
         self.yTrans = 0.
 
-        self.SR = sim.SR()
-        self.fixed = sim.fixed()
+        self.SR = sim.SR
+        self.fixed = sim.fixed
+        self.H = sim.H
 
-        # For test only: plot only the first 100 fixed atoms
-        self.fixed[:] = 1
-        self.SR = self.SR[self.fixed==1,:]
-        self.atomradius = 0.05
+        self.atomradius = 0.01
+
+        self.atomplotlist = atomplotlist
+        if len(self.atomplotlist)==0: #if list is empty, plot all atoms
+            self.atomplotlist = range(self.NP)
 
 
     #-------------------
@@ -73,11 +75,35 @@ class Viewer(object):
     def spheres(self):
         color = [1.0,0.,0.,1.]
         glMaterialfv(GL_FRONT,GL_DIFFUSE,color)
-        for ind in range(self.SR.shape[0]):
+        for ind in self.atomplotlist:# range(self.SR.shape[0]):
             glPushMatrix()
             glTranslated(self.SR[ind,0], self.SR[ind,1], self.SR[ind,2]);
             glutSolidSphere(self.atomradius,20,20)
             glPopMatrix()
+
+    def box(self):
+        color = [1.0,0.,0.,1.]
+        glLineWidth(0.2)
+        Lx = self.H[0][0]/2.0
+        Ly = self.H[1][1]/2.0
+        Lz = self.H[2][2]/2.0
+
+        Lx = 0.5
+        Ly = 0.5
+        Lz = 0.5
+        glBegin(GL_LINES); glVertex3d(-Lx,-Ly,-Lz); glVertex3d(-Lx,-Ly, Lz);glEnd();
+        glBegin(GL_LINES); glVertex3d(-Lx,-Ly, Lz); glVertex3d(-Lx, Ly, Lz);glEnd();
+        glBegin(GL_LINES); glVertex3d(-Lx, Ly, Lz); glVertex3d(-Lx, Ly,-Lz);glEnd();
+        glBegin(GL_LINES); glVertex3d(-Lx, Ly,-Lz); glVertex3d(-Lx,-Ly,-Lz);glEnd();
+        glBegin(GL_LINES); glVertex3d( Lx,-Ly,-Lz); glVertex3d( Lx,-Ly, Lz);glEnd();
+        glBegin(GL_LINES); glVertex3d( Lx,-Ly, Lz); glVertex3d( Lx, Ly, Lz);glEnd();
+        glBegin(GL_LINES); glVertex3d( Lx, Ly, Lz); glVertex3d( Lx, Ly,-Lz);glEnd();
+        glBegin(GL_LINES); glVertex3d( Lx, Ly,-Lz); glVertex3d( Lx,-Ly,-Lz);glEnd();
+        glBegin(GL_LINES); glVertex3d(-Lx,-Ly,-Lz); glVertex3d( Lx,-Ly,-Lz);glEnd();
+        glBegin(GL_LINES); glVertex3d(-Lx,-Ly, Lz); glVertex3d( Lx,-Ly, Lz);glEnd();
+        glBegin(GL_LINES); glVertex3d(-Lx, Ly, Lz); glVertex3d( Lx, Ly, Lz);glEnd();
+        glBegin(GL_LINES); glVertex3d(-Lx, Ly,-Lz); glVertex3d( Lx, Ly,-Lz);glEnd();
+
 
     #--------
     # VIEWER
@@ -139,6 +165,7 @@ class Viewer(object):
         #scenemodel()
         #sphere()
         self.spheres()
+        self.box()
 
         # Make sure changes appear onscreen
         glutSwapBuffers()

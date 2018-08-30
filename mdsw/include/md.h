@@ -762,13 +762,13 @@ public:
     /* Constructor (set initial values of member variables) */
     MDFrame(): _SAVEMEMORY(0),_NP(0),_NP0(0),_NIMAGES(0),_NPfree(0),_NPfixed(0),
 
-               _R(0),_SR(0),_SRA(0),_VR(0),_VSR(0),_F(0),_R0(0),_Fext(0),_ENABLE_FEXT(0),
+               _R(0),_SR(0),_SRA(0),_VR(0),_VSR(0),_F(0),_F0(0),_R0(0),_Fext(0),_ENABLE_FEXT(0),
 
                _FLAT_INDENTOR_POS(0), _FLAT_INDENTOR_POS0(0), _FLAT_INDENTOR_V(0),
                _FLAT_INDENTOR_K(0),   _FLAT_INDENTOR_F(0),    _FLAT_INDENTOR_DIR(0),
                _ENABLE_FLAT_INDENTOR(0),
 
-               fixed(0),species(0),group(0),nspecies(1),
+               fixed(0),image(0),species(0),group(0),nspecies(1),_VIRIAL_IND(0),
                _EPOT(0),_EPOT_IND(0),_EPOT_RMV(0),_EPOT_BOX(0),_EPOT0(0),_EPOT0_ext(0),_TOPOL(0),
 
                /* Molecular Dynamics parameters */
@@ -938,10 +938,10 @@ public:
                storedr(0),
 
                /* Torsion simulation */
-               _TORSIONSIM(0),_TORQUE(0),
+               _TORSIONSIM(0),_TORQUE(0),_TORQUE_IND(0),
 
                /* Bending simulation */
-               _BENDSIM(0), _BENDMOMENT(0),
+               _BENDSIM(0), _BENDMOMENT(0), _BENDMOMENT_IND(0),
         
                /* Center of mass momenta */
                _PTHETA_COM(0),               
@@ -987,6 +987,8 @@ public:
         plot_limits[0]=0;
         plot_color_windows[0]=0;
         plot_color_bar[0]=0;
+
+        nl_skip_pairs[0]=0;
 
         
     };

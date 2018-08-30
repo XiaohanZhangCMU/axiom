@@ -11,17 +11,26 @@ def removeNucleusAtoms(cfg, nucleus, NP):
 
 # Return a list of atom adjacent to, but not in, nucleus
 def find_nbr_atoms(nbrlist, nucleus, totIdx):
+    print("I am here 2.0")
+    print(nbrlist.shape)
+    print(nbrlist)
+    print(nucleus.shape)
+    print(nucleus)
     B = nbrlist[nucleus,:]
+    print("I am here 2.1")
+    print(B.shape)
     A = np.setdiff1d(np.extract(B>=0,B), nucleus)
+    print("I am here 2.2")
+    print(A.shape)
     return np.intersect1d(totIdx, A)
 
 def save_obj(obj, name ):
     with open( name + '.pkl', 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
-			
+
 def load_obj(name ):
     with open( name + '.pkl', 'rb') as f:
-        return pickle.load(f) 
+        return pickle.load(f)
 
 def merge_obj(obj_1, obj_2):
     obj = obj_1.copy()
@@ -32,7 +41,7 @@ def nucleus2bits(nucleus, totIdx):
     bits = np.in1d(totIdx, nucleus)
     bits = bits.astype(int)
     return bits
-  
+
 def bits2nucleus(bits, totIdx):
     nucleus = totIdx[np.where(bits==1)]
     nucleus = nucleus.astype(int)
@@ -45,7 +54,7 @@ def bits2str(bits):
     return mybits
 
 def str2bits(bitstr):
-    return np.array(map(int, bitstr)) 
+    return np.array(map(int, bitstr))
 
 def getnbrlist(nucleus, nbrlist):
     tmp = nbrlist[nucleus,:]

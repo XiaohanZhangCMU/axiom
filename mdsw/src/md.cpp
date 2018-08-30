@@ -1523,7 +1523,6 @@ void MDFrame::call_potential()
 	}
     }
 
-
     if (_ENABLE_FLAT_INDENTOR)
     {
         SHtoR();
@@ -8377,7 +8376,7 @@ void MDFrame::fixatoms_by_position()
         zmin=input[5];
         zmax=input[6];
         
-        INFO_Printf("setfixedatoms = [\n");
+        //INFO_Printf("setfixedatoms = [\n");
         nfixed=0;
         for(i=0;i<_NP;i++)
         {
@@ -8389,16 +8388,16 @@ void MDFrame::fixatoms_by_position()
                 nfixed++;
             }
         }
-        INFO_Printf("%d\n",nfixed);
-        for(i=0;i<_NP;i++)
-        {
-            if((_SR[i].x>=xmin)&&(_SR[i].x<xmax)
-               &&(_SR[i].y>=ymin)&&(_SR[i].y<ymax)
-               &&(_SR[i].z>=zmin)&&(_SR[i].z<zmax))
-            {
-                INFO_Printf("%d ",i);
-            }
-        }
+        //INFO_Printf("%d\n",nfixed);
+        //for(i=0;i<_NP;i++)
+        //{
+        //    if((_SR[i].x>=xmin)&&(_SR[i].x<xmax)
+        //       &&(_SR[i].y>=ymin)&&(_SR[i].y<ymax)
+        //       &&(_SR[i].z>=zmin)&&(_SR[i].z<zmax))
+        //    {
+        //        //INFO_Printf("%d ",i);
+        //    }
+        //}
     }
     else if(enable == 2) // Jan 25 2007 Keonwook Kang 
     {
@@ -8423,7 +8422,7 @@ void MDFrame::fixatoms_by_position()
         }
         INFO_Printf("Atoms whose radial distance between "
                     "%f and %f will be fixed.\n", rmin, rmax);
-        INFO_Printf("setfixedatoms = [\n");
+        //INFO_Printf("setfixedatoms = [\n");
         
         for(i=0;i<_NP;i++)
         {
@@ -8450,13 +8449,13 @@ void MDFrame::fixatoms_by_position()
                     if ((_SR[i][ind] < hmin) || (_SR[i][ind] > hmax))
                         continue;
                 }
-                INFO_Printf("%d ",i);
+                //INFO_Printf("%d ",i);
                 fixed[i]=1;
                 nfixed++;                
             }
         }
     }    
-    INFO_Printf("\n]\n");
+    //INFO_Printf("\n]\n");
     INFO_Printf("%d atoms fixed\n",nfixed);
     _NPfixed=_NPfree=0;
     for(i=0;i<_NP;i++)
@@ -9492,7 +9491,7 @@ void MDFrame::NbrList_reconstruct_use_link_list(int iatom)
     double rsmax2;
     Vector3 s,sij,rij,h;
 
-    //INFO("NbrList_reconstruct_use_link_list iatom="<<iatom);
+    printf("NbrList_reconstruct_use_link_list iatom=%d",iatom);
     if(iatom==-1)
         NbrList_init(_NP*allocmultiple,_NNM);
     
@@ -9624,13 +9623,16 @@ void MDFrame::NbrList_reconstruct_use_link_list(int iatom)
                     {
                         for(itmp=0;itmp<nl_skip_pairs[0];itmp++)
                         {
+    //printf("in NbrList_recons_use_list 4.32, itmp = %d\n", itmp);
                             if(   (nl_skip_pairs[2*itmp+1] == ipt)
                                 &&(nl_skip_pairs[2*itmp+2] == jpt) )
                                 skip = 1;
+    //printf("in NbrList_recons_use_list 4.33\n");
                             if(   (nl_skip_pairs[2*itmp+1] == jpt)
                                 &&(nl_skip_pairs[2*itmp+2] == ipt) )
                                 skip = 1;
                         }
+    //printf("in NbrList_recons_use_list 4.2\n");
                     }                            
                     /* check the distance between atoms ipt and jpt */
                     if( (!skip) && (ipt<jpt) )
@@ -9804,7 +9806,7 @@ void MDFrame::NbrList_reconstruct_use_cell_list(int iatom)
     }
     
     NbrList_init(_NP*allocmultiple,_NNM);
-    
+
     rsmax2=_RLIST*_RLIST;
     h=_H.height();
 
