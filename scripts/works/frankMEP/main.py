@@ -36,38 +36,87 @@ elif strain == "0.06":
 
 Nmax = 33
 
-# Automatically reuse atom container if available. Rewrite if this is not the intention.
-
-swobj = MDobj(strain, dirname, cohesv)
-swobj.reset()
-nucleus = swobj.choose_elipse_state(np.array([0, 0, 0.38475]), 0.90, 0.90)
-
-plotlist =np.extract(np.abs(swobj.SR[:,2])>0.375, np.arange(swobj.SR.shape[0]))
-
-idx_u = np.intersect1d(getnbrlist(nucleus, swobj.nbrlist), swobj.slice_nbrlist_u)
-idx_d = np.intersect1d(getnbrlist(nucleus, swobj.nbrlist), swobj.slice_nbrlist_d)
+# Color codes for View module
 
 red =   [1.0, 0.0, 0.0, 1.0]
 green = [0.0, 1.0, 0.0, 1.0]
 blue =  [0.0, 0.0, 1.0, 1.0]
-pltlist = np.concatenate((plotlist,swobj.slice_nbrlist_d, swobj.slice_nbrlist_u))
-colorlist = np.vstack((np.tile(red,(len(plotlist),1)), np.tile(blue,(len(swobj.slice_nbrlist_d),1)), np.tile(green,(len(swobj.slice_nbrlist_u),1))))
-view = Viewer(swobj, 300, 300, pltlist, colorlist)
 
-view.rendering()
-swobj.sw.sleep()
+# Initialize alloc all variables
 
-swobj.step(nucleus)
+swobj = MDobj(strain, dirname, cohesv)
+swobj.initialize()
+swobj.sw.writeatomeyecfg("tf.cfg")
+
+# Choose which search algorithm to use
+
+alg = GreedySearch(cohesv, strain, dirname)
+#alg = RlSaerch(swobj, cohesv, strain, dirname)
+
+# A search begins.
+
+alg.search(swobj, Nmax)
+
+#alg.visualize_path()
+
+
+if 0:
+    nucleus = swobj.choose_elipse_state(np.array([0, 0, 0.38475]), 0.35, 0.35)
+    plotlist =np.extract(np.abs(swobj.SR[:,2])>0.375, np.arange(swobj.sw.NP))
+
+if 0:
+    pltlist = np.concatenate((plotlist,swobj.slice_nbrlist_d, swobj.slice_nbrlist_u))
+    colorlist = np.vstack((np.tile(red,(len(plotlist),1)), np.tile(blue,(len(swobj.slice_nbrlist_d),1)), np.tile(green,(len(swobj.slice_nbrlist_u),1))))
+
+if 0:
+    pltlist = np.concatenate((plotlist,swobj.slice_nbrlist_d, nucleus))
+    colorlist = np.vstack((np.tile(red,(len(plotlist),1)), np.tile(blue,(len(swobj.slice_nbrlist_d),1)), np.tile(green,(len(nucleus),1))))
+
+if 0:
+    pltlist = np.concatenate((plotlist,swobj.slice_nbrlist_u, nucleus))
+    colorlist = np.vstack((np.tile(red,(len(plotlist),1)), np.tile(blue,(len(swobj.slice_nbrlist_u),1)), np.tile(green,(len(nucleus),1))))
+
+
+if 0:
+    pltlist = np.concatenate((plotlist,idx_u, nucleus))
+    colorlist = np.vstack((np.tile(red,(len(plotlist),1)), np.tile(blue,(len(idx_u),1)), np.tile(green,(len(nucleus),1))))
+
+if 0:
+    pltlist = np.concatenate((plotlist,idx_d, nucleus))
+    colorlist = np.vstack((np.tile(red,(len(plotlist),1)), np.tile(blue,(len(idx_d),1)), np.tile(green,(len(nucleus),1))))
+
+if 0:
+    pltlist = np.concatenate((plotlist,idx_u, idx_d))
+    colorlist = np.vstack((np.tile(red,(len(plotlist),1)), np.tile(blue,(len(idx_u),1)), np.tile(green,(len(idx_d),1))))
+    view = Viewer(swobj, 300, 300, pltlist, colorlist)
+    view.rendering()
+
+if 0:
+    red =   [1.0, 0.0, 0.0, 1.0]
+    green = [0.0, 1.0, 0.0, 1.0]
+    blue =  [0.0, 0.0, 1.0, 1.0]
+    surfnds=np.extract(np.abs(self.SR[:,2])>0.375, np.arange(self.sw.NP))
+    #fixednodes=fixednodes_d #np.extract(self.fixed==1, np.arange(self.sw.NP))
+    group = self.sw.group()
+    group1nodes = np.extract(group==1, np.arange(self.sw.NP))
+    plotlist = np.concatenate((surfnds, group1nodes))
+    colorlist = np.vstack((np.tile(red,(len(surfnds),1)), np.tile(blue,(len(group1nodes),1))))
+    view = Viewer(self, 300, 300, plotlist, colorlist)
+    view.rendering()
+    self.sw.sleep()
+
+
+
 #swobj.step(nucleus)
 #swobj.step(nucleus)
+#swobj.step(nucleus)
 
 
-swobj.sw.writeatomeyecfg("test_step_done.cfg")
 
 #view = Viewer(swobj, 300, 300, np.union1d(np.union1d(plotlist,swobj.slice_nbrlist_d), swobj.slice_nbrlist_u))
 #view = Viewer(swobj, 300, 300, np.union1d(np.union1d(np.union1d(plotlist,nucleus), idx_u), idx_d))
 #view = Viewer(swobj, 300, 300) , np.union1d(np.union1d(plotlist,idx_u), idx_d))
-exit(0)
+#exit(0)
 
 
 if 0:
@@ -95,21 +144,6 @@ if 0:
     view.rendering()
     swobj1.sw.sleep()
 
-# A set of test functions for MDobj class
-
-alg = GreedySearch(cohesv, strain, dirname)
-alg.search(swobj, Nmax)
-
-#alg = RlSaerch(swobj, cohesv, strain, dirname)
-
-# A set of test functions for Reinforcement Learning algorithm
-
-
-# A search begins.
-
-#alg.search()
-
-#alg.visualize_path()
 print("Program exits normally")
 
 

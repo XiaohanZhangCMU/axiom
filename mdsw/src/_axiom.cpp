@@ -88,6 +88,7 @@ PYBIND11_MODULE(mdsw, m) {
         .def_property("plot_color_windows", &MDFrame::get_plot_color_windows, &MDFrame::set_plot_color_windows, "property: plot_color_windows")
         .def_property("plot_limits", &MDFrame::get_plot_limits, &MDFrame::set_plot_limits, "property: plot_limits")
         .def_property("input", &MDFrame::get_input, &MDFrame::set_input, "property: input")
+        .def_property("H", &MDFrame::get_H, &MDFrame::set_H, "property: H")
 
         .def("Alloc", &MDFrame::Alloc)
         .def("SR1toSR", &MDFrame::SR1toSR)
@@ -105,6 +106,7 @@ PYBIND11_MODULE(mdsw, m) {
         .def("refreshnnlist", &MDFrame::NbrList_refresh)
         .def("fprintnnlist",&MDFrame::NbrList_fprint)
         .def("saveH", &MDFrame::saveH)
+        .def("restoreH", &MDFrame::restoreH)
         .def("changeH_keepR", &MDFrame::redefinepbc)
         .def("changeH_keepS", &MDFrame::shiftbox)
         .def("fixatoms_by_position", &MDFrame::fixatoms_by_position)
@@ -161,8 +163,24 @@ PYBIND11_MODULE(mdsw, m) {
                   free_when_done); // numpy array references this parent
 	        })
 
-        .def("H", [](MDFrame &m) {
-            double *foo = reinterpret_cast<double*> (m._H.element);
+        .def("group", [](MDFrame &m) {
+            int *foo = reinterpret_cast<int*> (m.group);
+	        /* Create a Python object that will free the allocated memory when destroyed: */
+	        bp::capsule free_when_done(foo, [](void *group) {
+	            int *foo = reinterpret_cast<int *>(group);
+	            std::cerr << "group [0] = " << foo[0] << "\nfreeing memory @ " << group << std::endl;
+	            delete[] foo;
+	          });
+
+	        return bp::array_t<int>(
+                  {m._NP}, // shape
+                  {4}, // C-style contiguous strides for double
+                  foo, // the data pointer
+                  free_when_done); // numpy array references this parent
+	        })
+
+ //       .def("H", [](MDFrame &m) {
+ //           double *foo = reinterpret_cast<double*> (m._H.element);
             //Matrix33 *foo = &(m._H);
 	        /* Create a Python object that will free the allocated memory when destroyed: */
 	        //bp::capsule free_when_done(foo, [](void *H) {
@@ -171,12 +189,12 @@ PYBIND11_MODULE(mdsw, m) {
 	        //    //delete[] foo;
 	        //  });
 
-	        return bp::array_t<double>(
-                  {3, 3}, // shape
-                  {3*8, 8}, // C-style contiguous strides for double
-                  foo // the data pointer
-                  ); // no need to free because H is on stack
-	        })
+//	        return bp::array_t<double>(
+//                  {3, 3}, // shape
+//                  {3*8, 8}, // C-style contiguous strides for double
+//                  foo // the data pointer
+//                  ); // no need to free because H is on stack
+//	        })
 
         .def("nn", [](MDFrame &m) {
             int *foo = reinterpret_cast<int*> (m.nn);

@@ -1403,6 +1403,17 @@ public:
         for(int i = 0;i<3;i++) for(int j =0;j<4;j++) latticesize[i][j] = v[cnt++];
     }
 
+    //H
+    inline std::vector<double> get_H() { 
+        std::vector<double> v;
+        for(int i = 0;i<3;i++) for(int j =0;j<3;j++) v.push_back(_H[i][j]); 
+        return v;
+    }
+    inline void set_H(std::vector<double> v){ 
+        int cnt = 0;
+        for(int i = 0;i<3;i++) for(int j =0;j<3;j++) _H[i][j] = v[cnt++];
+    }
+
     //rotateangles
     inline std::vector<double> get_rotateangles() { 
         std::vector<double> v;

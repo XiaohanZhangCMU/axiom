@@ -10,6 +10,7 @@
 *.jpg
 *.pkl
 *.dat
+*.log
 bin
 lib
 build
