@@ -10,20 +10,20 @@ from utility import *
 
 from MDobj import MDobj
 from SearchAlgorithms import GreedySearch
-from SearchAlgorithms import RlSearch
+from SearchAlgorithms import DQNSearch
 
 sys.path.append('../../lib/')
 sys.path.append('../../tests/')
 import mdsw
 from View import Viewer
 
-# Control parameters we need to set for Frank Partial Dislocation MEP calculation
+# Control parameters
 
 strain = "0.05"
 dirname = 'greedy_search_'+ strain +'/'
 
 # Cohesive energy is determined by applied strain.
-# Run separate simualations to calcualte these parameters.
+# Run separate simualations to determined Cohesive energy.
 
 if strain == "0.04":
     cohesv = 4.529;
@@ -46,25 +46,54 @@ blue =  [0.0, 0.0, 1.0, 1.0]
 
 swobj = MDobj(strain, dirname, cohesv)
 swobj.initialize()
-swobj.sw.writeatomeyecfg("tf.cfg")
+swobj.sw.finalcnfile = dirname+"0K_0.0_relaxed_surf001.cn"
+swobj.sw.writecn(0,False)
+swobj.sw.finalcnfile = dirname+"0K_0.0_relaxed_surf001.cfg"
+swobj.sw.writeatomeyecfg(swobj.sw.finalcnfile)
 
 # Choose which search algorithm to use
 
 alg = GreedySearch(cohesv, strain, dirname)
-#alg = RlSaerch(swobj, cohesv, strain, dirname)
+#alg = DQNSaerch(swobj, cohesv, strain, dirname)
 
 # A search begins.
 
 alg.search(swobj, Nmax)
-
 #alg.visualize_path()
 
+# Visualizations
+#nucleus = swobj.choose_elipse_state(np.array([0, 0, 0.38475]), 0.35, 0.35)
+#alg.save_path_node(swobj, nucleus, 0)
+if 0:
+    idx = np.zeros((swobj.NP0,1))
+    print(idx.shape)
+    idx.fill(1)
+    print(idx[nucleus].sum())
+    idx[nucleus]= 0
+    print(idx[nucleus].sum())
 
 if 0:
-    nucleus = swobj.choose_elipse_state(np.array([0, 0, 0.38475]), 0.35, 0.35)
+    swobj.sw.freeallatoms()
+    newfix = np.empty_like(swobj.fixed)
+    np.copyto(newfix, swobj.fixed)
+    newfix = np.expand_dims(newfix, axis=1)
+    print(newfix.shape)
+    newfix.fill(1)
+    print(newfix[nucleus].sum())
+    newfix[nucleus] = 0
+    print(newfix[nucleus].sum())
+
+if 0:
+    swobj.sw.freeallatoms()
+    print(swobj.fixed.shape)
+    swobj.fixed.fill(1)
+    print(swobj.fixed[nucleus].sum())
+    swobj.fixed[nucleus] = 0
+    print(swobj.fixed[nucleus].sum())
+
+
+if 0:
     plotlist =np.extract(np.abs(swobj.SR[:,2])>0.375, np.arange(swobj.sw.NP))
-
-if 0:
     pltlist = np.concatenate((plotlist,swobj.slice_nbrlist_d, swobj.slice_nbrlist_u))
     colorlist = np.vstack((np.tile(red,(len(plotlist),1)), np.tile(blue,(len(swobj.slice_nbrlist_d),1)), np.tile(green,(len(swobj.slice_nbrlist_u),1))))
 
@@ -105,20 +134,6 @@ if 0:
     view.rendering()
     self.sw.sleep()
 
-
-
-#swobj.step(nucleus)
-#swobj.step(nucleus)
-#swobj.step(nucleus)
-
-
-
-#view = Viewer(swobj, 300, 300, np.union1d(np.union1d(plotlist,swobj.slice_nbrlist_d), swobj.slice_nbrlist_u))
-#view = Viewer(swobj, 300, 300, np.union1d(np.union1d(np.union1d(plotlist,nucleus), idx_u), idx_d))
-#view = Viewer(swobj, 300, 300) , np.union1d(np.union1d(plotlist,idx_u), idx_d))
-#exit(0)
-
-
 if 0:
     print(swobj.totIdx.shape)
     print(nucleus.shape)
@@ -143,6 +158,11 @@ if 0:
     view = Viewer(swobj, 600, 600, np.union1d(plotlist, nucleus) )
     view.rendering()
     swobj1.sw.sleep()
+
+if 0:
+    view = Viewer(swobj, 300, 300, np.union1d(np.union1d(plotlist,swobj.slice_nbrlist_d), swobj.slice_nbrlist_u))
+    view = Viewer(swobj, 300, 300, np.union1d(np.union1d(np.union1d(plotlist,nucleus), idx_u), idx_d))
+
 
 print("Program exits normally")
 

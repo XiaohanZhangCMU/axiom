@@ -25,11 +25,12 @@ class MDobj(object):
         self.normal = np.array([0, 0, 0])
         self.cohesv = cohesv
         self.pairs = np.array([])
+        self.E0 = 0 # store E of perfect structure
 
     def relax_fixbox(self):
         self.sw.conj_ftol = 1e-4
         self.sw.conj_itmax = 3800
-        self.sw.conj_fevalmax = 6000
+        self.sw.conj_fevalmax = 3
         self.sw.conj_fixbox = 1
         self.sw.relax()
 
@@ -104,10 +105,6 @@ class MDobj(object):
 
         # Relax and save perfect thin film configurations
         self.relax_fixbox()
-        self.sw.finalcnfile = "0K_0.0_relaxed_surf001.cn"
-        self.sw.writecn(0,False)
-        self.sw.finalcnfile = "0K_0.0_relaxed_surf001.cfg"
-        self.sw.writeatomeyecfg(self.sw.finalcnfile)
 
         # Make a reference of commonly used arrays in sw
         self.SR = self.sw.SR()
@@ -118,6 +115,8 @@ class MDobj(object):
         self.sw.setconfig1()
         self.sw.saveH()
         self.NP0 = self.sw.NP
+        self.sw.eval()
+        self.E0 = self.sw.EPOT
 
         # Prepare nbrlist of slip planes
         self.make_nnlist2d()
@@ -137,6 +136,7 @@ class MDobj(object):
         pt1 = 0.5*(pt1d + pt1u);  pt2 = 0.5*(pt2d + pt2u)
         pt3 = 0.5*(pt3d + pt3u);  pt4 = 0.5*(pt4d + pt4u)
         pt0 = 0.5*(pt1+pt3);
+        print("pt1 = {0}, pt3 = {1}".format(pt1, pt3))
 
         v = (pt2-pt1).astype(np.double)
         v /=LA.norm(v)
@@ -145,22 +145,21 @@ class MDobj(object):
         eps = 0.02
         totIdx_1 = self.select_totalatoms_on_slice(eps, pt1, self.normal, 1)
         totIdx_2 = self.select_totalatoms_on_slice(eps, pt3, self.normal, -1)
-        print("pt1 = {0}, pt3 = {1}".format(pt1, pt3))
         self.totIdx = np.union1d(totIdx_1, totIdx_2)
         self.pairs  = self.make_pairs(totIdx_1, totIdx_2)
 
         # Build neighborhood list for totIdx
         self.sw.refreshnnlist()
-        self.sw.fprintnnlist()
+        # self.sw.fprintnnlist()
         self.nbrlist = self.sw.nindex() # this actually bind to nindex_mem
         self.nn = self.sw.nn()
 
-        # atoms sandwich pt0-normal plane with 2*eps thickness
+        # Select atoms sandwich pt0-normal plane with 2*eps thickness
         totIdx_u = self.select_totalatoms_on_slice(2*eps, pt0, self.normal, 1)
         totIdx_d = self.select_totalatoms_on_slice(2*eps, pt0, self.normal, -1)
 
-        # atoms above/below pt0-normal plane minus nucleus atoms
-        # atoms to be moved when closing-up a trench is subset of these
+        # Select atoms above/below pt0-normal plane minus nucleus atoms
+        # Select atoms to be moved when closing-up a trench is subset of these
         self.slice_nbrlist_u = np.intersect1d(getnbrlist(totIdx_1, self.nbrlist), totIdx_u)
         self.slice_nbrlist_d = np.intersect1d(getnbrlist(totIdx_2, self.nbrlist), totIdx_d)
 
@@ -179,13 +178,11 @@ class MDobj(object):
             pairs_.append([atom_I, minatom])
         return np.array(pairs_).astype(int)
 
-    # Then relax and compute energy which is written to EPOT_2.dat
     def make_frk_dislocation(self, nucleus):
         idx_u = np.intersect1d(getnbrlist(nucleus, self.nbrlist), self.slice_nbrlist_u)
         idx_d = np.intersect1d(getnbrlist(nucleus, self.nbrlist), self.slice_nbrlist_d)
 
         # Perturb atoms on both sides of nucleus (within nbrlist)
-
         self.sw.freeallatoms()
         for id in [ idx_u ]: self.fixed[id] = 1
         self.sw.input = mdsw.VectorDouble([1])
@@ -231,7 +228,7 @@ class MDobj(object):
         e0 = [1,0,0]; e1 = [0,1,0]; e2 = [0,0,1];
         ep0 = e1;     ep1 = np.cross(self.normal, ep0); ep2 = self.normal;
 
-        # coordinate transform
+        # Coordinate transform
         Q = np.zeros((3,3))
         Q[0][0]=np.dot(ep0,e0);Q[1][1]=np.dot(ep1,e1);Q[2][2]=np.dot(ep2,e2)
         Q[0][1]=np.dot(ep0,e1);Q[0][2]=np.dot(ep0,e2);Q[1][0]=np.dot(ep1,e0)
@@ -262,28 +259,26 @@ class MDobj(object):
 
         db_file = self.dirname+"db_" + str(self.strain);
         db  = load_obj(db_file) if os.path.exists(db_file+".pkl") else { }
-
-        #self.view = Viewer(self.sw, 600, 600)
-        #self.view.rendering()
-
         bitstr = bits2str(nucleus2bits(nucleus, self.totIdx))
+
         if bitstr in db:
             print("data base has = {0} data points".format(len(db)))
-            return nucleus, db[bitstr], False, {} #want to maximize the energy cost
+            return nucleus, db[bitstr], db[bitstr]<self.E0, {}
         else:
             # Perturb atoms on boths sides of nucleus
-            # Then evaluate the potential energy of the perturbed system
+
             energy = self.make_frk_dislocation(nucleus)
-            self.sw.writeatomeyecfg("test_step_mid.cfg")
             energy -= self.cohesv * nucleus.size;
             db[bitstr] = energy
             save_obj(db, db_file)
 
-            # Put back SR, H to SR0, H0 after make_frk_dislocation is called
+            # Put SR, H back
             self.sw.NP = self.NP0
             self.sw.SR1toSR()
             self.sw.restoreH()
             self.sw.refreshnnlist()
 
-        return nucleus, energy, False, {} #want to maximize the energy cost
+        # If energy drops below initial energy, done!
+        return nucleus, energy, energy<self.E0, {}
+
 

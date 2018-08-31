@@ -32,7 +32,7 @@ class Viewer(object):
 
         self.SR = sim.SR
         self.fixed = sim.fixed
-        self.H = sim.H
+        self.H = sim.sw.H
 
         self.atomradius = 0.01
 
@@ -100,9 +100,9 @@ class Viewer(object):
     def box(self):
         color = [1.0,0.,0.,1.]
         glLineWidth(0.2)
-        Lx = self.H[0][0]/2.0
-        Ly = self.H[1][1]/2.0
-        Lz = self.H[2][2]/2.0
+        Lx = self.H[0]/2.0
+        Ly = self.H[4]/2.0
+        Lz = self.H[8]/2.0
 
         Lx = 0.5
         Ly = 0.5

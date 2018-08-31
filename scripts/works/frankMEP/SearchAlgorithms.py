@@ -2,6 +2,8 @@
 """
 from MDobj import MDobj
 from utility import *
+from View import Viewer
+from MDobj import MDobj
 
 class GreedySearch(object):
     def __init__(self, cohesv, strain, dirname):
@@ -12,22 +14,18 @@ class GreedySearch(object):
     #Greedy search for each new atom to add on: always choose the lowest energy state.
     def search(self, swobj, Nmax):
         step0 = 0
-        nucleus = swobj.choose_elipse_state(np.array([0, 0, 0.38475]), 0.32, 0.32)
+        saveinter = 0
+
+        nucleus = swobj.choose_elipse_state(np.array([0, 0, 0.38475]), 0.08, 0.08)
         s, energy, _,_ = swobj.step(nucleus)
 
         self.MEP = { }
 
         # Generate a series of ellipse loops, relax with strain
         for step in range(Nmax):
-            print(swobj.nbrlist.shape)
-            print(nucleus.shape)
-            print(swobj.totIdx.shape)
-            #swobj.sw.refreshnnlist()
-            print(swobj.nbrlist)
             bdyatoms = find_nbr_atoms(swobj.nbrlist, nucleus, swobj.totIdx)
             #assert(bdyatoms.size %2 == 0), "bdyatoms.size = {0}".format(bdyatoms.size)
             #print("bdyatoms = {0}".format(bdyatoms))
-            #writecncfg(cfg[bdyatoms,:], H, dirname+'bdyatoms-'+str(step0))
 
             # Find the atom that has lowest energy if added to nucleus
             MINenergy = 1e8
@@ -35,39 +33,45 @@ class GreedySearch(object):
             MINatom_J = -1
             istep0 = 0
             bdyatoms_u = np.intersect1d(swobj.pairs[:,0], bdyatoms)
-            with open(swobj.dirname+"B.log", "a") as fp:
-                fp.write("nucleus = {0}\n".format(nucleus))
-                fp.write("bdyatoms_u.size = {0}\n".format(bdyatoms_u.size))
+
+            nucleus0 = np.copy(nucleus)
 
             for atom_I in bdyatoms_u:
                 istep0 -= 1
                 i,j = np.where(swobj.pairs==atom_I)
                 assert(j==0)
                 atom_J = swobj.pairs[i[0],1]
-                nucleus = np.array(np.append(nucleus, [atom_I, atom_J]))
+                nucleus = np.append(nucleus, [atom_I, atom_J])
                 nucleus, energy, done, info = swobj.step(nucleus)
+
                 if energy < MINenergy:
                     MINenergy = energy
 
                 MINatom_I = atom_I
                 MINatom_J = atom_J
-                with open(swobj.dirname+"B.log", "a") as fp:
-                    fp.write("atom_I = {0}, atom_J = {1}, energy = {2}\n".format(atom_I, atom_J, energy))
 
-            assert(MINatom_I >=0 and MINatom_J >=0)
-            nucleus = np.append(nucleus, [MINatom_I,MINatom_J])
+                with open(swobj.dirname+"B.log", "a") as fp:
+                    fp.write("nucleus size = {0}; (atom I, atom J) = ({1}); energy = {2}\n".format(len(nucleus), (atom_I, atom_J), energy))
 
             with open(swobj.dirname+"B.log", "a") as fp:
-                fp.write("MINatom_I = {0}, MINatom_J = {1}\n".format(MINatom_I, MINatom_J))
+                fp.write("------------------------------\n")
+
+            assert(MINatom_I >=0 and MINatom_J >=0)
+            nucleus = np.append(nucleus0, [MINatom_I,MINatom_J])
+
             with open(swobj.dirname+"potential.dat", "a") as fp:
                 fp.write(str(MINenergy)+"\n")
+            if 1:
+                self.save_path_node(swobj, nucleus, saveinter)
+                saveinter+=1
 
             self.MEP[bits2str(nucleus2bits(nucleus,swobj.totIdx))] = MINenergy
+
+            save_obj(self.MEP, 'mep')
 
             step0 += 1 # end of for step in range(Nmax)
 
         return self.MEP
-
 
     #def visualize_path():
     #    (X,Y,Z) = order_path(self.MEP)
@@ -97,8 +101,30 @@ class GreedySearch(object):
         X = X[inds]
         return (N, Y, X)
 
+    def visualize_path_node(self, swobj, nucleus):
+        red =   [1.0, 0.0, 0.0, 1.0]
+        green = [0.0, 1.0, 0.0, 1.0]
+        blue =  [0.0, 0.0, 1.0, 1.0]
+        plotlist =np.extract(np.abs(swobj.SR[:,2])>0.375, np.arange(swobj.sw.NP))
+        atomlist = np.concatenate((plotlist,nucleus))
+        colorlist = np.vstack((np.tile(red,(len(plotlist),1)), np.tile(blue,(len(nucleus),1))))
+        view = Viewer(swobj, 300, 300, atomlist, colorlist)
+        view.rendering()
 
-class RlSearch(object):
+    def save_path_node(self, swobj, nucleus, saveinter):
+        swobj.sw.finalcnfile=swobj.dirname + "/pathimg_"+str(saveinter)+".cfg"
+        swobj.sw.freeallatoms()
+        swobj.fixed.fill(1)
+        swobj.fixed[nucleus] = 0
+        swobj.sw.removefixedatoms()
+        swobj.sw.writeatomeyecfg(swobj.sw.finalcnfile)
+
+        swobj.sw.NP = swobj.NP0
+        swobj.sw.SR1toSR()
+        swobj.sw.refreshnnlist()
+
+
+class DQNSearch(object):
     def __init__(self, swobj, cohesv, strain, dirname):
         self.cohesv = cohesv
         self.strain = strain
