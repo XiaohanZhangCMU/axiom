@@ -8079,7 +8079,7 @@ void MDFrame::movegroup()
 
     n=(int)input[0];
 
-    INFO_Printf("n=%d\n",n);
+    INFO_Printf("move group: n=%d\n",n);
 
     if(n>0)
     {
