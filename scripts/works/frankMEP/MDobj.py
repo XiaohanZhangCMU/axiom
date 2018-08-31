@@ -30,7 +30,7 @@ class MDobj(object):
     def relax_fixbox(self):
         self.sw.conj_ftol = 1e-4
         self.sw.conj_itmax = 3800
-        self.sw.conj_fevalmax = 6000
+        self.sw.conj_fevalmax =2 # 6000
         self.sw.conj_fixbox = 1
         self.sw.relax()
 
@@ -71,6 +71,7 @@ class MDobj(object):
         self.sw.changeH_keepR()
         self.relax_fixbox()
 
+        print("initialize I am here 0")
         # Surface reconstruction in [110] directions
         ny = self.sw.latticesize[7]
         for i in range(int(ny)):
@@ -96,12 +97,15 @@ class MDobj(object):
         self.sw.input = mdsw.VectorDouble([2])
         self.sw.setfixedatomsgroup()
         self.sw.freeallatoms()
+        print("initialize I am here 1")
 
         self.sw.input = mdsw.VectorDouble([ 1,  0,  0.8, 0,  1 ])
         self.sw.movegroup()
         self.sw.input = mdsw.VectorDouble([ 1,  0, -0.8, 0,  2 ])
         self.sw.movegroup()
+        print("initialize I am here 2")
         self.group.fill(0)
+        print("initialize I am here 3")
 
         # Relax and save perfect thin film configurations
         self.relax_fixbox()
@@ -110,6 +114,7 @@ class MDobj(object):
         self.SR = self.sw.SR()
         self.fixed = self.sw.fixed()
         self.group = self.sw.group()
+        print("initialize I am here 4")
 
         # Make copies of initial states to go back to anytime
         self.sw.setconfig1()
@@ -183,26 +188,31 @@ class MDobj(object):
         idx_d = np.intersect1d(getnbrlist(nucleus, self.nbrlist), self.slice_nbrlist_d)
 
         # Perturb atoms on both sides of nucleus (within nbrlist)
+        print("frk I am here 1")
         self.sw.freeallatoms()
         for id in [ idx_u ]: self.fixed[id] = 1
         self.sw.input = mdsw.VectorDouble([1])
         self.sw.setfixedatomsgroup()
         self.sw.freeallatoms()
+        print("frk I am here 2")
         for id in [ idx_d ]: self.fixed[id] = 1
         self.sw.input = mdsw.VectorDouble([2])
         self.sw.setfixedatomsgroup()
         self.sw.freeallatoms()
+        print("frk I am here 3")
 
         mag  = 0.9
         magx = self.normal[0] * mag
         magy = self.normal[1] * mag
         magz = self.normal[2] * mag
 
+        print("frk I am here 4")
         self.sw.input = mdsw.VectorDouble([ 1, -magx, -magy, -magz, 1 ])
         self.sw.movegroup()
         self.sw.input = mdsw.VectorDouble([ 1, magx, magy, magz, 2 ])
         self.sw.movegroup()
 
+        print("frk I am here 5")
         # Put group back to 0. Important!
         self.group.fill(0)
 
@@ -211,12 +221,14 @@ class MDobj(object):
         self.sw.removefixedatoms()
         self.sw.freeallatoms()
 
+        print("frk I am here 6")
         # Apply strain to close trench and create a frank partial
         H = self.sw.H
         H[0] = self.sw.H[0]*(1.0-self.strain)
         self.sw.H = H
         self.relax_fixbox()
         self.sw.SHtoR()
+        print("frk I am here 7")
 
         # Evaluate and return potential energy
         self.sw.eval()
@@ -266,17 +278,23 @@ class MDobj(object):
             return nucleus, db[bitstr], db[bitstr]<self.E0, {}
         else:
             # Perturb atoms on boths sides of nucleus
+            print("step I am here 0")
 
             energy = self.make_frk_dislocation(nucleus)
             energy -= self.cohesv * nucleus.size;
+            print("step I am here 1")
             db[bitstr] = energy
             save_obj(db, db_file)
+            print("step I am here 2")
 
             # Put SR, H back
             self.sw.NP = self.NP0
             self.sw.SR1toSR()
+            print("step I am here 3")
             self.sw.restoreH()
+            print("step I am here 4")
             self.sw.refreshnnlist()
+            print("step I am here 5")
 
         # If energy drops below initial energy, done!
         return nucleus, energy, energy<self.E0, {}

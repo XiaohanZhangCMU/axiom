@@ -20,6 +20,7 @@ class GreedySearch(object):
         s, energy, _,_ = swobj.step(nucleus)
 
         self.MEP = { }
+        print("search I am here 0")
 
         # Generate a series of ellipse loops, relax with strain
         for step in range(Nmax):
@@ -45,6 +46,8 @@ class GreedySearch(object):
                 nucleus_sub_I = np.copy(nucleus)
                 nucleus = np.append(nucleus, [atom_I, atom_J])
                 nucleus, energy, done, info = swobj.step(nucleus)
+
+                print("search I am here 1")
                 nucleus = np.copy(nucleus_sub_I)
 
                 if energy < MINenergy:
@@ -127,12 +130,17 @@ class GreedySearch(object):
         swobj.sw.freeallatoms()
         swobj.fixed.fill(1)
         swobj.fixed[nucleus] = 0
+        print("I am here 1")
         swobj.sw.removefixedatoms()
         swobj.sw.writeatomeyecfg(swobj.sw.finalcnfile)
 
+        swobj.fixed.fill(0)
+        print("I am here 2")
         swobj.sw.NP = swobj.NP0
         swobj.sw.SR1toSR()
+        print("I am here 3")
         swobj.sw.refreshnnlist()
+        print("I am here 4")
 
 
 class DQNSearch(object):
