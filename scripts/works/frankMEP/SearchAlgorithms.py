@@ -41,19 +41,27 @@ class GreedySearch(object):
                 i,j = np.where(swobj.pairs==atom_I)
                 assert(j==0)
                 atom_J = swobj.pairs[i[0],1]
+
+                nucleus_sub_I = np.copy(nucleus)
                 nucleus = np.append(nucleus, [atom_I, atom_J])
                 nucleus, energy, done, info = swobj.step(nucleus)
+                nucleus = np.copy(nucleus_sub_I)
 
                 if energy < MINenergy:
                     MINenergy = energy
-
-                MINatom_I = atom_I
-                MINatom_J = atom_J
+                    MINatom_I = atom_I
+                    MINatom_J = atom_J
 
                 with open(swobj.dirname+"B.log", "a") as fp:
                     fp.write("nucleus size = {0}; (atom I, atom J) = ({1}); energy = {2}\n".format(len(nucleus), (atom_I, atom_J), energy))
+                    #fp.write(str(nucleus))
+                    #fp.write('\n')
 
             with open(swobj.dirname+"B.log", "a") as fp:
+                fp.write("------------------------------\n")
+                fp.write("nucleus size = {0}; (atom I, atom J) = ({1}); MINenergy = {2}\n".format(len(nucleus), (MINatom_I, MINatom_J), MINenergy))
+                #fp.write(str(nucleus))
+                #fp.write('\n')
                 fp.write("------------------------------\n")
 
             assert(MINatom_I >=0 and MINatom_J >=0)
@@ -112,6 +120,9 @@ class GreedySearch(object):
         view.rendering()
 
     def save_path_node(self, swobj, nucleus, saveinter):
+        swobj.sw.finalcnfile=swobj.dirname + "/img_"+str(saveinter)+".cfg"
+        swobj.sw.writeatomeyecfg(swobj.sw.finalcnfile)
+
         swobj.sw.finalcnfile=swobj.dirname + "/pathimg_"+str(saveinter)+".cfg"
         swobj.sw.freeallatoms()
         swobj.fixed.fill(1)
