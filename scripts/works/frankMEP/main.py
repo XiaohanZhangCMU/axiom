@@ -4,6 +4,7 @@ import pickle
 import math
 import random
 from subprocess import call
+import numpy as np
 from numpy import linalg as LA
 from utility import *
 
@@ -39,14 +40,34 @@ Nmax = 33
 
 swobj = MDobj(strain, dirname, cohesv)
 swobj.reset()
-nucleus = swobj.choose_elipse_state(np.array([0, 0, 0.38475]), 0.32, 0.32)
+nucleus = swobj.choose_elipse_state(np.array([0, 0, 0.38475]), 0.90, 0.90)
+
+plotlist =np.extract(np.abs(swobj.SR[:,2])>0.375, np.arange(swobj.SR.shape[0]))
+
+idx_u = np.intersect1d(getnbrlist(nucleus, swobj.nbrlist), swobj.slice_nbrlist_u)
+idx_d = np.intersect1d(getnbrlist(nucleus, swobj.nbrlist), swobj.slice_nbrlist_d)
+
+red =   [1.0, 0.0, 0.0, 1.0]
+green = [0.0, 1.0, 0.0, 1.0]
+blue =  [0.0, 0.0, 1.0, 1.0]
+pltlist = np.concatenate((plotlist,swobj.slice_nbrlist_d, swobj.slice_nbrlist_u))
+colorlist = np.vstack((np.tile(red,(len(plotlist),1)), np.tile(blue,(len(swobj.slice_nbrlist_d),1)), np.tile(green,(len(swobj.slice_nbrlist_u),1))))
+view = Viewer(swobj, 300, 300, pltlist, colorlist)
+
+view.rendering()
+swobj.sw.sleep()
 
 swobj.step(nucleus)
-swobj.step(nucleus)
-swobj.step(nucleus)
+#swobj.step(nucleus)
+#swobj.step(nucleus)
+
 
 swobj.sw.writeatomeyecfg("test_step_done.cfg")
-#exit(0)
+
+#view = Viewer(swobj, 300, 300, np.union1d(np.union1d(plotlist,swobj.slice_nbrlist_d), swobj.slice_nbrlist_u))
+#view = Viewer(swobj, 300, 300, np.union1d(np.union1d(np.union1d(plotlist,nucleus), idx_u), idx_d))
+#view = Viewer(swobj, 300, 300) , np.union1d(np.union1d(plotlist,idx_u), idx_d))
+exit(0)
 
 
 if 0:

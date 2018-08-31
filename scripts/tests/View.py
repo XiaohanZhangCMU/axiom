@@ -7,7 +7,7 @@ import sys
 from PIL import Image
 
 class Viewer(object):
-    def __init__(self, sim, width, height, atomplotlist=[], display=None):
+    def __init__(self, sim, width, height, atomplotlist=[],colorlist = [], display=None):
         #-----------
         # VARIABLES
         #-----------
@@ -37,8 +37,9 @@ class Viewer(object):
         self.atomradius = 0.01
 
         self.atomplotlist = atomplotlist
+        self.colorlist = colorlist
         if len(self.atomplotlist)==0: #if list is empty, plot all atoms
-            self.atomplotlist = range(self.NP)
+            self.atomplotlist = range(sim.sw.NP)
 
 
     #-------------------
@@ -72,11 +73,26 @@ class Viewer(object):
         glPopMatrix()
 
 
-    def spheres(self):
+    def spheres_singlecolor(self):
         color = [1.0,0.,0.,1.]
         glMaterialfv(GL_FRONT,GL_DIFFUSE,color)
         for ind in self.atomplotlist:# range(self.SR.shape[0]):
             glPushMatrix()
+            glTranslated(self.SR[ind,0], self.SR[ind,1], self.SR[ind,2]);
+            glutSolidSphere(self.atomradius,20,20)
+            glPopMatrix()
+
+    def spheres(self):
+        if self.colorlist.shape[0] == 0:
+            spheres_singlecolor(self)
+            return
+
+        cnt = 0
+        for ind in self.atomplotlist:# range(self.SR.shape[0]):
+            glPushMatrix()
+            color = self.colorlist[cnt]
+            cnt = cnt + 1
+            glMaterialfv(GL_FRONT,GL_DIFFUSE,color)
             glTranslated(self.SR[ind,0], self.SR[ind,1], self.SR[ind,2]);
             glutSolidSphere(self.atomradius,20,20)
             glPopMatrix()

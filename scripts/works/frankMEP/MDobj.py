@@ -31,8 +31,8 @@ class MDobj(object):
 
     def relax_fixbox(self):
         self.sw.conj_ftol = 1e-4
-        self.sw.conj_itmax = 10 # 3800
-        self.sw.conj_fevalmax = 10 # 6000
+        self.sw.conj_itmax = 3800
+        self.sw.conj_fevalmax = 5 #6000
         self.sw.conj_fixbox = 1
         self.sw.relax()
 
@@ -189,9 +189,9 @@ class MDobj(object):
         self.nbrlist = self.sw.nindex() # this actually bind to nindex_mem
         self.nn = self.sw.nn()
 
-        # atoms sandwich pt0-normal plane with 3*eps thickness
-        totIdx_u = self.select_totalatoms_on_slice(3*eps, pt0, self.normal, 1)
-        totIdx_d = self.select_totalatoms_on_slice(3*eps, pt0, self.normal, -1)
+        # atoms sandwich pt0-normal plane with 2*eps thickness
+        totIdx_u = self.select_totalatoms_on_slice(2*eps, pt0, self.normal, 1)
+        totIdx_d = self.select_totalatoms_on_slice(2*eps, pt0, self.normal, -1)
 
         # atoms above/below pt0-normal plane minus nucleus atoms
         # atoms to be moved when closing-up a trench is subset of these
@@ -221,33 +221,43 @@ class MDobj(object):
 
     # Then relax and compute energy which is written to EPOT_2.dat
     def make_frk_dislocation(self, nucleus):
-        tol = 0.05
+
+        idx_u = np.intersect1d(getnbrlist(nucleus, self.nbrlist), self.slice_nbrlist_u)
+        idx_d = np.intersect1d(getnbrlist(nucleus, self.nbrlist), self.slice_nbrlist_d)
+
+        self.sw.freeallatoms()
 
         # Perturb atoms on both sides of nucleus (within nbrlist)
-        for id in [ self.slice_nbrlist_u ]: self.fixed[id] = 1
-        self.input = mdsw.VectorDouble([1])
-        self.sw.setfixedatomsgroup()
-        self.sw.freeallatoms()
-
-        for id in [ self.slice_nbrlist_d ]: self.fixed[id] = 1
-        self.sw.input = mdsw.VectorDouble([2])
-        self.sw.setfixedatomsgroup()
-        self.sw.freeallatoms()
-
-        mag  = 0.9
-        magx = self.normal[0] * mag
-        magy = self.normal[1] * mag
-        magz = self.normal[2] * mag
-
-        self.sw.input = mdsw.VectorDouble([ 1, -magx, -magy, -magz, 1 ])
-        self.sw.movegroup()
-        self.sw.input = mdsw.VectorDouble([ 1, magx, magy, magz, 1 ])
-        self.sw.movegroup()
-
-        # Remove nucleus from SR
-        for id in nucleus: self.fixed[id] = 1
+        for id in [ idx_u ]: self.fixed[id] = 1
         self.sw.removefixedatoms()
         self.sw.freeallatoms()
+
+        #self.input = mdsw.VectorDouble([1])
+        #self.sw.setfixedatomsgroup()
+        #self.sw.freeallatoms()
+
+        #for id in [ idx_d ]: self.fixed[id] = 1
+        #self.sw.input = mdsw.VectorDouble([2])
+        #self.sw.setfixedatomsgroup()
+        #self.sw.freeallatoms()
+
+        #mag  = 0.9
+        #magx = self.normal[0] * mag
+        #magy = self.normal[1] * mag
+        #magz = self.normal[2] * mag
+
+        #self.sw.input = mdsw.VectorDouble([ 1, -magx, -magy, -magz, 1 ])
+        #self.sw.movegroup()
+        #self.sw.input = mdsw.VectorDouble([ 1, magx, magy, magz, 2 ])
+        #self.sw.movegroup()
+
+        # Remove nucleus from SR
+        #for id in nucleus: self.fixed[id] = 1
+        #self.sw.removefixedatoms()
+        #self.sw.freeallatoms()
+
+        #self.sw.writeatomeyecfg("test_frk_mid.cfg")
+        exit(0)
 
         # Apply strain to close trench and create a frank partial
         H11_fix = self.H0[0][0]*(1.0-self.strain)
@@ -278,7 +288,7 @@ class MDobj(object):
         #self.view.rendering()
 
         bitstr = bits2str(nucleus2bits(nucleus, self.totIdx))
-        if bitstr in db: 
+        if 0 : # bitstr in db:
             print("data base has = {0} data points".format(len(db)))
             return nucleus, db[bitstr], False, {} #want to maximize the energy cost
         else:
