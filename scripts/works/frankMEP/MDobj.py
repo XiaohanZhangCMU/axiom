@@ -30,7 +30,7 @@ class MDobj(object):
     def relax_fixbox(self):
         self.sw.conj_ftol = 1e-4
         self.sw.conj_itmax = 3800
-        self.sw.conj_fevalmax =2 # 6000
+        self.sw.conj_fevalmax = 6000
         self.sw.conj_fixbox = 1
         self.sw.relax()
 
@@ -120,8 +120,6 @@ class MDobj(object):
         self.sw.setconfig1()
         self.sw.saveH()
         self.NP0 = self.sw.NP
-        self.sw.eval()
-        self.E0 = self.sw.EPOT
 
         # Prepare nbrlist of slip planes
         self.make_nnlist2d()
@@ -171,6 +169,16 @@ class MDobj(object):
     """ Find closest pair of atoms across the glide-set plane
     """
     def make_pairs(self, totIdx_1, totIdx_2):
+        if 0:
+            red =   [1.0, 0.0, 0.0, 1.0]
+            green = [0.0, 1.0, 0.0, 1.0]
+            blue =  [0.0, 0.0, 1.0, 1.0]
+            plotlist = np.concatenate((totIdx_1, totIdx_2))
+            colorlist = np.vstack((np.tile(red,(len(totIdx_1),1)), np.tile(blue,(len(totIdx_2),1))))
+            view = Viewer(self, 300, 300, plotlist, colorlist)
+            view.rendering()
+            self.sw.sleep()
+
         (t1,t2) = (totIdx_1,totIdx_2) if len(totIdx_1)<len(totIdx_2) else (totIdx_2,totIdx_1)
         pairs_ = [ ]
         for atom_I in t1:
@@ -181,6 +189,18 @@ class MDobj(object):
                     mindis = tmp
                     minatom = atom_J
             pairs_.append([atom_I, minatom])
+
+        if 0:
+            tmparr = np.array(pairs_).astype(int)
+            red =   [1.0, 0.0, 0.0, 1.0]
+            green = [0.0, 1.0, 0.0, 1.0]
+            blue =  [0.0, 0.0, 1.0, 1.0]
+            plotlist = np.concatenate((tmparr[:,0], tmparr[:,1]))
+            colorlist = np.vstack((np.tile(red,(len(tmparr[:,0]),1)), np.tile(blue,(len(tmparr[:,1]),1))))
+            view = Viewer(self, 300, 300, plotlist, colorlist)
+            view.rendering()
+            self.sw.sleep()
+
         return np.array(pairs_).astype(int)
 
     def make_frk_dislocation(self, nucleus):
@@ -224,15 +244,15 @@ class MDobj(object):
         print("frk I am here 6")
         # Apply strain to close trench and create a frank partial
         H = self.sw.H
-        H[0] = self.sw.H[0]*(1.0-self.strain)
+        H[0] = H[0]*(1.0-self.strain)
         self.sw.H = H
         self.relax_fixbox()
         self.sw.SHtoR()
         print("frk I am here 7")
 
-        # Evaluate and return potential energy
+    def eval(self, nucleus):
         self.sw.eval()
-        return self.sw.EPOT
+        return self.sw.EPOT-self.cohesv*nucleus.size
 
     """ Select atoms belong to an eclipse defined by a, b, pt0 and normal
     """
@@ -246,7 +266,13 @@ class MDobj(object):
         Q[0][1]=np.dot(ep0,e1);Q[0][2]=np.dot(ep0,e2);Q[1][0]=np.dot(ep1,e0)
         Q[1][2]=np.dot(ep1,e2);Q[2][0]=np.dot(ep2,e0);Q[2][1]=np.dot(ep2,e1)
 
-        return np.intersect1d(np.extract(np.dot(Q, (self.SR-pt0).transpose())[0,:]**2/a**2+np.dot(Q, (self.SR-pt0).transpose())[1,:]**2/b**2<=1, np.arange(self.sw.NP)), self.totIdx)
+        #return np.intersect1d(np.extract(np.dot(Q, (self.SR-pt0).transpose())[0,:]**2/a**2+np.dot(Q, (self.SR-pt0).transpose())[1,:]**2/b**2<=1, np.arange(self.sw.NP)), self.totIdx)
+        idx_u = np.intersect1d(np.extract(np.dot(Q, (self.SR-pt0).transpose())[0,:]**2/a**2+np.dot(Q, (self.SR-pt0).transpose())[1,:]**2/b**2<=1, np.arange(self.sw.NP)), self.pairs[:,0])
+        idx_d = []
+        for i in idx_u:
+            x,y = np.where(self.pairs == i)
+            idx_d.append(self.pairs[x[0],1])
+        return np.union1d(idx_u, idx_d)
 
     # Reset to have the initial state
     def reset(self):
@@ -254,9 +280,27 @@ class MDobj(object):
         pt0 = np.array([0,0,0])
         a0 = 0.05
         b0 = a0
-        nucleus = self.choose_elipse_state(pt0, a0, b0)
+        nucleus = self.choose_elipse_state(np.array([0, 0, 0.38475]), 0.08, 0.08)
         return nucleus
 
+    def restoreConfig(self):
+        # Put SR, H back
+        self.sw.NP = self.NP0
+        self.sw.SR1toSR()
+        print("step I am here 3")
+        self.sw.restoreH()
+        print("step I am here 4")
+        self.sw.refreshnnlist()
+        print("step I am here 5")
+
+    def saveNucleus(self, nucleus, cfg_file_name):
+        self.restoreConfig()
+        self.sw.freeallatoms()
+        self.fixed.fill(1)
+        self.fixed[nucleus] = 0
+        self.sw.removefixedatoms()
+        self.sw.writeatomeyecfg(cfg_file_name)
+        self.restoreConfig()
 
     """ step() returns four values
         observation: state of environemnt
@@ -280,21 +324,14 @@ class MDobj(object):
             # Perturb atoms on boths sides of nucleus
             print("step I am here 0")
 
-            energy = self.make_frk_dislocation(nucleus)
-            energy -= self.cohesv * nucleus.size;
+            self.make_frk_dislocation(nucleus)
+            energy = self.eval(nucleus)
+            db[bitstr]= energy
             print("step I am here 1")
-            db[bitstr] = energy
             save_obj(db, db_file)
             print("step I am here 2")
 
-            # Put SR, H back
-            self.sw.NP = self.NP0
-            self.sw.SR1toSR()
-            print("step I am here 3")
-            self.sw.restoreH()
-            print("step I am here 4")
-            self.sw.refreshnnlist()
-            print("step I am here 5")
+            self.restoreConfig()
 
         # If energy drops below initial energy, done!
         return nucleus, energy, energy<self.E0, {}

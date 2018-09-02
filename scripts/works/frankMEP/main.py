@@ -53,8 +53,16 @@ swobj.sw.writeatomeyecfg(swobj.sw.finalcnfile)
 
 # Choose which search algorithm to use
 
-alg = GreedySearch(cohesv, strain, dirname)
-#alg = DQNSaerch(swobj, cohesv, strain, dirname)
+#alg = GreedySearch(cohesv, strain, dirname)
+alg = DQNSearch(cohesv, strain, dirname,
+                env.n_actions, env.n_features,
+                learning_rate=0.01,
+                reward_decay=0.9,
+                e_greedy=0.9,
+                replace_target_iter=200,
+                memory_size=2000,
+                # output_graph=True
+                )
 
 # A search begins.
 
