@@ -264,6 +264,8 @@ class MDobj(object):
         self.sw.SHtoR()
         print("frk I am here 7")
 
+        self.E0 = self.eval(np.array([]))
+
     def eval(self, nucleus):
         self.sw.eval()
         return self.sw.EPOT-self.cohesv*nucleus.size
@@ -329,12 +331,14 @@ class MDobj(object):
 
         db_file = self.dirname+"db_" + str(self.strain);
         db  = load_obj(db_file) if os.path.exists(db_file+".pkl") else { }
+        # Always store db w.r.t totIdx to enable database shared by different stateB
         bitstr = bits2str(nucleus2bits(nucleus, self.totIdx))
+
         done = (nucleus2bits(nucleus, stateB)==nucleus2bits(stateB, stateB)).all()
 
         if bitstr in db:
             print("data base has = {0} data points".format(len(db)))
-            return nucleus, db[bitstr], done, {}
+            return nucleus, self.E0-db[bitstr], done, {}
         else:
             # Perturb atoms on boths sides of nucleus
             print("step I am here 0")
@@ -349,6 +353,7 @@ class MDobj(object):
             self.restoreConfig()
 
         # If nucleus equals state B, episode done!
-        return nucleus, energy, done, {}
+        # Miminize -Eb is equivalent to maximize rewards in RL 
+        return nucleus, self.E0-energy, done, {}
 
 

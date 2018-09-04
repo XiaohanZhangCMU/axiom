@@ -8,7 +8,7 @@ import numpy as np
 from numpy import linalg as LA
 from utility import *
 
-from MDobj import MDobj, Maze
+from MDobj import MDobj
 #from SearchAlgorithms import GreedySearch
 from SearchAlgorithms import DQNSearch
 

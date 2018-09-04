@@ -1,25 +1,20 @@
 #!/bin/bash
+#SBATCH --job-name=franMEP_DQN_0.05
+#format could be dd-hh:mm:ss, hh:mm:ss, mm:ss, or mm
+#SBATCH --time=1-0:0:0
+# #SBATCH --qos=long
+#SBATCH --nodes=1
+#SBATCH --mem=20000
+#SBATCH -p mc 
+#SBATCH --mail-type=END,FAIL 
+#SBATCH --mail-user=xzhang11@stanford.edu
 
-export PATH="/home/xzhang11/miniconda2/bin:$PATH"
-#PBS -N frank
-#PBS -l nodes=1:ppn=24,walltime=196:00:00
-#PBS -j oe
-
-echo The master node of this job is `hostname`
-echo The working directory is `echo $PBS_O_WORKDIR`
-echo This job runs on the following nodes:
-echo `cat $PBS_NODEFILE`
-
-ncpu=`cat $PBS_NODEFILE | wc -w`
-echo "Number of processors = $ncpu "
-
-# Change to working directory
-cd $PBS_O_WORKDIR
+cd /home/users/xzhang11/axiom/axiom/scripts/works/frankMEP
 
 # Start Run 
 
 sleep 1
 #python generate_network.py
-python scripts/work/frankMEP/global_search.py
+python test_DQN_search.py
 
 wait

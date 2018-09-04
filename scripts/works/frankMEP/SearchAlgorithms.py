@@ -73,6 +73,7 @@ class GreedySearch(object):
                 nucleus_sub_I = np.copy(nucleus)
                 nucleus = np.append(nucleus, [atom_I, atom_J])
                 nucleus, energy, done, info = swobj.step(nucleus, self.stateB)
+                energy *= -1  # to make step consistent with RL algorithms
 
                 print("search I am here 1")
                 nucleus = np.copy(nucleus_sub_I) # save nucleus before subIter
