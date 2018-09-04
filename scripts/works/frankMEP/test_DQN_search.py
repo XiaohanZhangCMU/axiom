@@ -8,23 +8,23 @@ import numpy as np
 from numpy import linalg as LA
 from utility import *
 
-from MDobj import MDobj
-from SearchAlgorithms import GreedySearch
+from MDobj import MDobj, Maze
+#from SearchAlgorithms import GreedySearch
 from SearchAlgorithms import DQNSearch
 
 sys.path.append('../../lib/')
 sys.path.append('../../tests/')
 import mdsw
-from View import Viewer
+#from View import Viewer
 
-""" Specify a small B state, check if GreedySearch works as expected.
+""" Specify a small B state, check if DQN works as expected.
     Run this script. Check EPOT.dat and path images.
 """
 
 # Control parameters
 
 strain = "0.05"
-dirname = 'greedy_search_'+ strain +'/'
+dirname = 'dqn_search_'+ strain +'/'
 
 # Cohesive energy is determined by applied strain.
 # Run separate simualations to determined Cohesive energy.
@@ -61,10 +61,36 @@ swobj.restoreConfig()
 
 # Choose which search algorithm to use
 
-alg = GreedySearch(stateA, stateB)
+stateA = np.intersect1d(swobj.pairs[:,0], stateA)
+stateB = np.intersect1d(swobj.pairs[:,0], stateB)
+alg = DQNSearch(stateA, stateB,
+                learning_rate=0.01,
+                reward_decay=0.9,
+                e_greedy=0.9,
+                replace_target_iter=200,
+                memory_size=2000,
+                output_graph=True
+               )
 
 # Begin search
-alg.search(swobj)
+alg.train(swobj, n_episodes = 300)
+alg.write_path(swobj)
+
+
+'''
+env = Maze()
+alg = DQNSearch(cohesv, strain, dirname,
+                env.n_actions, env.n_features,
+                learning_rate=0.01,
+                reward_decay=0.9,
+                e_greedy=0.9,
+                replace_target_iter=200,
+                memory_size=2000,
+                output_graph=True
+               )
+alg.search(300, env)
+'''
+
 
 print("Program exits normally")
 

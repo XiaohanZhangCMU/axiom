@@ -6,8 +6,22 @@ sys.path.append('../../../lib/')
 sys.path.append('../../tests/')
 import mdsw
 from numpy import linalg as LA
-from View import Viewer
+#from View import Viewer
 from utility import *
+
+
+import numpy as np
+import time
+import sys
+if sys.version_info.major == 2:
+    import Tkinter as tk
+else:
+    import tkinter as tk
+
+UNIT = 40   # pixels
+MAZE_H = 4  # grid height
+MAZE_W = 4  # grid width
+
 
 class MDobj(object):
     def __init__(self, strain, dirname, cohesv):
@@ -311,15 +325,16 @@ class MDobj(object):
         Otherwise, calculate the state and store it to the data base
     """
 
-    def step(self, nucleus):
+    def step(self, nucleus, stateB):
 
         db_file = self.dirname+"db_" + str(self.strain);
         db  = load_obj(db_file) if os.path.exists(db_file+".pkl") else { }
         bitstr = bits2str(nucleus2bits(nucleus, self.totIdx))
+        done = (nucleus2bits(nucleus, stateB)==nucleus2bits(stateB, stateB)).all()
 
         if bitstr in db:
             print("data base has = {0} data points".format(len(db)))
-            return nucleus, db[bitstr], db[bitstr]<self.E0, {}
+            return nucleus, db[bitstr], done, {}
         else:
             # Perturb atoms on boths sides of nucleus
             print("step I am here 0")
@@ -333,7 +348,7 @@ class MDobj(object):
 
             self.restoreConfig()
 
-        # If energy drops below initial energy, done!
-        return nucleus, energy, energy<self.E0, {}
+        # If nucleus equals state B, episode done!
+        return nucleus, energy, done, {}
 
 
