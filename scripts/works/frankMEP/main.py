@@ -15,7 +15,7 @@ from SearchAlgorithms import DQNSearch
 sys.path.append('../../lib/')
 sys.path.append('../../tests/')
 import mdsw
-from View import Viewer
+#from View import Viewer
 
 # Control parameters
 
@@ -51,14 +51,27 @@ swobj.sw.writecn(0,False)
 swobj.sw.finalcnfile = dirname+"0K_0.0_relaxed_surf001.cfg"
 swobj.sw.writeatomeyecfg(swobj.sw.finalcnfile)
 
+# Create State A and B
+
+stateA = np.array([])
+stateB = swobj.choose_elipse_state(np.array([0,0,0.38475]), 0.4, 0.4)
+
 # Choose which search algorithm to use
 
 alg = GreedySearch(cohesv, strain, dirname)
-#alg = DQNSaerch(swobj, cohesv, strain, dirname)
+#alg = DQNSearch(cohesv, strain, dirname,
+#                env.n_actions, env.n_features,
+#                learning_rate=0.01,
+#                reward_decay=0.9,
+#                e_greedy=0.9,
+#                replace_target_iter=200,
+#                memory_size=2000,
+                # output_graph=True
+#               )
 
 # A search begins.
 
-alg.search(swobj, Nmax)
+alg.search(swobj, stateA, stateB)
 #alg.visualize_path()
 
 # Visualizations
