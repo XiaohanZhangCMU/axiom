@@ -25,7 +25,7 @@ from View import Viewer
 # Control parameters
 
 strain = "0.05"
-dirname = 'greedy_search_'+ strain +'/'
+dirname = '/home/x/runs/test_state_AnB_energy_'+ strain +'/'
 
 # Cohesive energy is determined by applied strain.
 # Run separate simualations to determined Cohesive energy.
@@ -45,26 +45,26 @@ red =   [1.0, 0.0, 0.0, 1.0]
 green = [0.0, 1.0, 0.0, 1.0]
 blue =  [0.0, 0.0, 1.0, 1.0]
 
-fp = open('EPOT.dat', 'w')
 
-# Initialize alloc all variables
+# Initialize alloc all variables and create State A0 under strain:
 
 swobj = MDobj(strain, dirname, cohesv)
 swobj.initialize()
 
-# Create State A0 under strain:
+fp = open(swobj.dirname+'/EPOT.dat', 'w')
+fp.write('Energy of state A0 = {0}\n'.format(swobj.E0))
 
-H = swobj.sw.H
-H[0] = H[0]*(1.0-np.double(strain))
-swobj.sw.H = H
-swobj.relax_fixbox()
-swobj.sw.SHtoR()
-energy = swobj.eval( np.array([]))
-fp.write('Energy of state A0 = {0}\n'.format(energy))
-swobj.sw.finalcnfile = dirname+"0K_0.0_relaxed_surf001.cn"
-swobj.sw.writecn(0,False)
-swobj.sw.finalcnfile = dirname+"0K_0.0_relaxed_surf001.cfg"
-swobj.sw.writeatomeyecfg(swobj.sw.finalcnfile)
+#H = swobj.sw.H
+#H[0] = H[0]*(1.0-np.double(strain))
+#swobj.sw.H = H
+#swobj.relax_fixbox()
+#swobj.sw.SHtoR()
+#energy = swobj.eval( np.array([]))
+#swobj.sw.finalcnfile = dirname+"0K_0.0_relaxed_surf001.cn"
+#swobj.sw.writecn(0,False)
+#swobj.sw.finalcnfile = dirname+"0K_0.0_relaxed_surf001.cfg"
+#swobj.sw.writeatomeyecfg(swobj.sw.finalcnfile)
+#swobj.restoreConfig()
 
 # Create State A:
 

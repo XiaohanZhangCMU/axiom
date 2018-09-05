@@ -24,20 +24,20 @@ class GreedySearch(object):
     def search(self, swobj):
         step0 = saveinter = 0
         nucleus = swobj.reset()
-        self.MEP[bits2str(nucleus2bits(nucleus,swobj.totIdx))] = swobj.eval(nucleus)
+        self.MEP[bits2str(nucleus2bits(nucleus,self.stateB))] = swobj.eval(nucleus)
 
         print("search I am here 0")
 
         # Generate a series of ellipse loops, relax with strain
         while True:
-            bdyatoms = find_nbr_atoms(swobj.nbrlist, nucleus, swobj.totIdx)
+            bdyatoms = find_nbr_atoms(swobj.nbrlist, nucleus, self.stateB)
             #assert(bdyatoms.size %2 == 0), "bdyatoms.size = {0}".format(bdyatoms.size)
             #print("bdyatoms = {0}".format(bdyatoms))
 
             # Find the atom that has lowest energy if added to nucleus
-            MINenergy = 1e8
-            MINatom_I = -1
-            MINatom_J = -1
+            MAXenergy = -1e8
+            MAXatom_I = -1
+            MAXatom_J = -1
             bdyatoms_u = np.intersect1d(swobj.pairs[:,0], bdyatoms)
             bdyatoms_d = np.intersect1d(swobj.pairs[:,1], bdyatoms)
 
@@ -73,43 +73,42 @@ class GreedySearch(object):
                 nucleus_sub_I = np.copy(nucleus)
                 nucleus = np.append(nucleus, [atom_I, atom_J])
                 nucleus, energy, done, info = swobj.step(nucleus, self.stateB)
-                energy *= -1  # to make step consistent with RL algorithms
 
                 print("search I am here 1")
                 nucleus = np.copy(nucleus_sub_I) # save nucleus before subIter
 
-                if energy < MINenergy:
-                    MINenergy = energy
-                    MINatom_I = atom_I
-                    MINatom_J = atom_J
+                if energy > MAXenergy:
+                    MAXenergy = energy
+                    MAXatom_I = atom_I
+                    MAXatom_J = atom_J
 
                 with open(swobj.dirname+"B.log", "a") as fp:
                     fp.write("nucleus size = {0}; (atom I, atom J) = ({1}); energy = {2}\n".format(len(nucleus), (atom_I, atom_J), energy))
                     #fp.write(str(nucleus))
                     #fp.write('\n')
 
-            if (nucleus2bits(nucleus,swobj.totIdx)==nucleus2bits(self.stateB,swobj.totIdx)).all():
+            if (nucleus2bits(nucleus,self.stateB)==nucleus2bits(self.stateB,self.stateB)).all():
                 print("Reach stateB successfully. GreedySearch() returns.")
                 break
             else:
-                assert(MINatom_I >=0 and MINatom_J >=0)
+                assert(MAXatom_I >=0 and MAXatom_J >=0)
 
             with open(swobj.dirname+"B.log", "a") as fp:
                 fp.write("------------------------------\n")
-                fp.write("nucleus size = {0}; (atom I, atom J) = ({1}); MINenergy = {2}\n".format(len(nucleus), (MINatom_I, MINatom_J), MINenergy))
+                fp.write("nucleus size = {0}; (atom I, atom J) = ({1}); MAXenergy = {2}\n".format(len(nucleus), (MAXatom_I, MAXatom_J), MAXenergy))
                 #fp.write(str(nucleus))
                 #fp.write('\n')
                 fp.write("------------------------------\n")
 
-            nucleus = np.append(nucleus0, [MINatom_I,MINatom_J])
+            nucleus = np.append(nucleus0, [MAXatom_I,MAXatom_J])
 
             with open(swobj.dirname+"potential.dat", "a") as fp:
-                fp.write(str(MINenergy)+"\n")
+                fp.write(str(MAXenergy)+"\n")
             if 1:
                 self.save_path_node(swobj, nucleus, saveinter)
                 saveinter+=1
 
-            self.MEP[bits2str(nucleus2bits(nucleus,swobj.totIdx))] = MINenergy
+            self.MEP[bits2str(nucleus2bits(nucleus,self.stateB))] = MAXenergy
 
             save_obj(self.MEP, swobj.dirname+'mep')
 
@@ -350,12 +349,15 @@ class DQNSearch(object):
 
         with open(env.dirname+"B.log", "w") as fp:
             fp.write("DQNSearch starts\n")
+        with open(env.dirname+"A.log", "w") as fp:
+            fp.write("DQNSearch starts\n")
 
         for episode in range(n_episodes):
             nucleus = env.reset()
             self.penalty = np.zeros((1,self.n_actions))
             self.penalty[0][np.where(nucleus2bits(nucleus,self.stateB)==1)[0]] = float("-inf")
             observation = nucleus2bits(nucleus, self.stateB)
+            totreturn = 0
 
             while True:
                 #env.render()
@@ -384,6 +386,7 @@ class DQNSearch(object):
                 # NOTE: returned nucleus is the same as the one passed in.
                 #       formally, step should only take in ``action'' as input.
                 nucleus, reward, done,_ = env.step(nucleus, self.stateB)
+                totreturn += reward
                 # print("nucleus = {0}, shape = {1}, unique shape = {2}, done = {3}".format(nucleus, len(nucleus), len(np.unique(nucleus)), (nucleus2bits(nucleus, self.stateB)==nucleus2bits(self.stateB, self.stateB)).all()))
 
 
@@ -407,7 +410,11 @@ class DQNSearch(object):
                     break
                 step +=1
 
-        print('Search finished')
+            with open(env.dirname+"A.log", "a") as fp:
+                fp.write("total return for episode {0} = {1}\n".format(episode, totreturn))
+
+
+        print('DQNSearch finished')
 
     def write_path(self, env):
         nucleus = env.reset()
@@ -458,10 +465,7 @@ class DQNSearch(object):
 
         swobj.fixed.fill(0)
         print("I am here 2")
-        swobj.sw.NP = swobj.NP0
-        swobj.sw.SR1toSR()
-        print("I am here 3")
-        swobj.sw.refreshnnlist()
+        swobj.restoreConfig()
         print("I am here 4")
 
 

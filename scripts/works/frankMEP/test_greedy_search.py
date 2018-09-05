@@ -24,7 +24,7 @@ from View import Viewer
 # Control parameters
 
 strain = "0.05"
-dirname = 'greedy_search_'+ strain +'/'
+dirname = '/home/x/runs/greedy_search_'+ strain +'/'
 
 # Cohesive energy is determined by applied strain.
 # Run separate simualations to determined Cohesive energy.
@@ -50,7 +50,7 @@ swobj.initialize()
 # Create State A and B
 
 stateA = np.array([])
-stateB = swobj.choose_elipse_state(np.array([0,0,0.38475]), 0.2, 0.2)
+stateB = swobj.choose_elipse_state(np.array([0,0,0.38475]), 0.25, 0.25)
 
 swobj.make_frk_dislocation(stateB)
 energy = swobj.eval(stateB)

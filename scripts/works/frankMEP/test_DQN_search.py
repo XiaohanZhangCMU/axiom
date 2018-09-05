@@ -24,7 +24,7 @@ import mdsw
 # Control parameters
 
 strain = "0.05"
-dirname = 'dqn_search_'+ strain +'/'
+dirname = '/home/x/runs/dqn_search_'+ strain +'/'
 
 # Cohesive energy is determined by applied strain.
 # Run separate simualations to determined Cohesive energy.
@@ -67,7 +67,7 @@ alg = DQNSearch(stateA, stateB,
                 learning_rate=0.01,
                 reward_decay=0.9,
                 e_greedy=0.9,
-                replace_target_iter=200,
+                replace_target_iter=20,
                 memory_size=2000,
                 output_graph=True
                )

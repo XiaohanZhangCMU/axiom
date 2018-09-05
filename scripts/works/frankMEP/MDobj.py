@@ -48,6 +48,13 @@ class MDobj(object):
         self.sw.conj_fixbox = 1
         self.sw.relax()
 
+    def relax_with_uniaxial_strain(self, eps_xx):
+        H = self.sw.H
+        H[0] = H[0]*(1.0-eps_xx)
+        self.sw.H = H
+        self.relax_fixbox()
+        self.sw.SHtoR()
+
     """ Find atoms eps away from a plane defined by its normal (nrml) and a _pt
         If opt > 0, choose atoms above the plane
         If opt < 0, choose atoms below the plane
@@ -137,6 +144,20 @@ class MDobj(object):
 
         # Prepare nbrlist of slip planes
         self.make_nnlist2d()
+
+        # Get strained dislocation free state and energy
+        self.relax_with_uniaxial_strain(np.double(self.strain))
+        #H = self.sw.H
+        #H[0] = H[0]*(1.0-np.double(strain))
+        #self.sw.H = H
+        #self.relax_fixbox()
+        #self.sw.SHtoR()
+        self.E0 = self.eval( np.array([]))
+        self.sw.finalcnfile = self.dirname+"0K_0.0_relaxed_surf001.cn"
+        self.sw.writecn(0,False)
+        self.sw.finalcnfile = self.dirname+"0K_0.0_relaxed_surf001.cfg"
+        self.sw.writeatomeyecfg(self.sw.finalcnfile)
+        self.restoreConfig()
 
     """ Prepare nn list for neighbor atom ids of each atom on the 2d plane
         pick the contrl pts to define a slice of atoms
@@ -257,14 +278,15 @@ class MDobj(object):
 
         print("frk I am here 6")
         # Apply strain to close trench and create a frank partial
-        H = self.sw.H
-        H[0] = H[0]*(1.0-self.strain)
-        self.sw.H = H
-        self.relax_fixbox()
-        self.sw.SHtoR()
+        self.relax_with_uniaxial_strain(np.double(self.strain))
+        #H = self.sw.H
+        #H[0] = H[0]*(1.0-self.strain)
+        #self.sw.H = H
+        #self.relax_fixbox()
+        #self.sw.SHtoR()
         print("frk I am here 7")
-
-        self.E0 = self.eval(np.array([]))
+        self.sw.eval()
+        print("frk I am here 8 {0}".format(self.sw.EPOT))
 
     def eval(self, nucleus):
         self.sw.eval()
@@ -346,14 +368,14 @@ class MDobj(object):
             self.make_frk_dislocation(nucleus)
             energy = self.eval(nucleus)
             db[bitstr]= energy
-            print("step I am here 1")
+            print("step I am here 1, energy = {0}, E0 = {1}".format(energy, self.E0))
             save_obj(db, db_file)
             print("step I am here 2")
 
             self.restoreConfig()
 
-        # If nucleus equals state B, episode done!
-        # Miminize -Eb is equivalent to maximize rewards in RL 
-        return nucleus, self.E0-energy, done, {}
+            # If nucleus equals state B, episode done!
+            # Miminize -Eb is equivalent to maximize rewards in RL
+            return nucleus, self.E0-energy, done, {}
 
 
