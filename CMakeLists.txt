@@ -25,6 +25,10 @@ else()
         set(PYTHON_LIBRARY "/scratch/users/xzhang11/miniconda3/lib")
         set(PYTHON_INCLUDE_DIR "/scratch/users/xzhang11/miniconda3/include/python3.6m")
     endif()
+    if(${HostName} MATCHES "rice*")  # sherlock2
+        set(PYTHON_LIBRARY "/home/xzhang11/miniconda3/lib")
+        set(PYTHON_INCLUDE_DIR "/home/xzhang11/miniconda3/include/python3.6m")
+    endif()
     if(${HostName} MATCHES "mc2*") # mc2
         set(CMAKE_C_COMPILER /share/apps/gnu/5.2/bin/gcc)
         set(CMAKE_CXX_COMPILER /share/apps/gnu/5.2/bin/g++)
