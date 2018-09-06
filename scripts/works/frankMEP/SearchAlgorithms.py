@@ -202,7 +202,6 @@ class DQNSearch(object):
         """
         self.n_actions = len(stateB)  # Initial, atom can be removed from any location in B\A
         self.n_features = len(stateB) # of atoms in state B defines feature space
-        self.penalty = np.zeros((1,self.n_actions))
 
         # total learning step
         self.learn_step_counter = 0
@@ -281,14 +280,14 @@ class DQNSearch(object):
 
         self.memory_counter += 1
 
-    def choose_action(self, observation):
+    def choose_action(self, observation, negative_penalty):
         # to have batch dimension when feed into tf placeholder
         observation = observation[np.newaxis,:]
 
         if np.random.uniform() < self.epsilon:
             # forward feed observation and get q value
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s : observation})
-            action = np.argmax(actions_value + self.penalty)
+            action = np.argmax(actions_value + negative_penalty)
             #print("In choose action 1\n")
             #print("actions_value.shape = {0}".format(actions_value.shape))
             #print("penalty.shape = {0}".format(self.penalty.shape))
@@ -298,9 +297,10 @@ class DQNSearch(object):
             #print("action 1 = {0}".format(action))
 
         else:
+            # when exploring, keep choosing until an atom within the neighbor of existing nucleus is chosen
             action = np.random.randint(0, self.n_actions)
             #print("observation.shape= {0}".format(observation.shape))
-            while observation[0][action]==1:
+            while negative_penalty[0][action] == float("-inf") :
                 action = np.random.randint(0,self.n_actions)
             #print("action 2 = {0}".format(action))
         return action
@@ -354,8 +354,12 @@ class DQNSearch(object):
 
         for episode in range(n_episodes):
             nucleus = env.reset()
-            self.penalty = np.zeros((1,self.n_actions))
-            self.penalty[0][np.where(nucleus2bits(nucleus,self.stateB)==1)[0]] = float("-inf")
+            negative_penalty = np.zeros((1,self.n_actions))
+            # don`t add new atom in existing nucleus 
+            negative_penalty[0][np.where(nucleus2bits(nucleus,self.stateB)==1)[0]] = float("-inf")
+            # only add atom to negibhorhood of exisitng nucleus
+            bdyatoms = find_nbr_atoms(swobj.nbrlist, nucleus, self.stateB)
+            negative_penalty[0][np.where(nucleus2bits(bdyatoms,self.stateB)==0)[0]] = float("-inf")
             observation = nucleus2bits(nucleus, self.stateB)
             totreturn = 0
 
@@ -363,14 +367,13 @@ class DQNSearch(object):
                 #env.render()
 
                 # RL choose action based on observation
-                action = self.choose_action(observation)
+                action = self.choose_action(observation, negative_penalty)
 
                 # Execute action (add the i_th element of nbitsdiff(nucleus,B) to observation)
                 # Sine stateB = {1111..11}, that is equivalent to find i_th zero element of observation
                 # print((np.where(observation==0))[0])
                 # print(action)
                 # print(self.penalty.shape)
-                self.penalty[0][action] = float("-inf")
                 #atom_I = self.stateB[(np.where(observation==0))[0] [action]]
                 atom_I = self.stateB[action]
                 i,j = np.where(env.pairs==atom_I)
@@ -381,6 +384,11 @@ class DQNSearch(object):
                     exit(0)
 
                 nucleus = np.append(nucleus, [atom_I, atom_J])
+
+                negative_penalty[0][action] = float("-inf")
+                # only add atom to negibhorhood of exisitng nucleus
+                bdyatoms = find_nbr_atoms(swobj.nbrlist, nucleus, self.stateB)
+                negative_penalty[0][np.where(nucleus2bits(bdyatoms,self.stateB)==0)[0]] = float("-inf")
 
                 # RL take action and get next observation and reward
                 # NOTE: returned nucleus is the same as the one passed in.
@@ -418,7 +426,7 @@ class DQNSearch(object):
 
     def write_path(self, env):
         nucleus = env.reset()
-        self.penalty = np.zeros((1,self.n_actions))
+        negative_penalty = np.zeros((1,self.n_actions))
         saveinter = 1000
         while True:
             observation = nucleus2bits(nucleus, self.stateB)
@@ -426,8 +434,8 @@ class DQNSearch(object):
             observation = observation[np.newaxis,:]
 
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s : observation})
-            action = np.argmax(actions_value + self.penalty)
-            self.penalty[0][action] = float("-inf")
+            action = np.argmax(actions_value + negative_penalty)
+            negative_penalty[0][action] = float("-inf")
             atom_I = self.stateB[action]
             if atom_I not in self.stateB:
                 continue;

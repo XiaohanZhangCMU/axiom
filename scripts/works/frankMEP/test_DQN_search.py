@@ -24,7 +24,7 @@ import mdsw
 # Control parameters
 
 strain = "0.05"
-dirname = '/scratch/users/xzhang11/frankMEPruns/dqn_search_'+ strain +'/'
+dirname = '/scratch/users/xzhang11/frankMEPruns/dqn_neighbor_search_'+ strain +'/'
 
 # Cohesive energy is determined by applied strain.
 # Run separate simualations to determined Cohesive energy.
