@@ -24,7 +24,7 @@ import mdsw
 # Control parameters
 
 strain = "0.05"
-dirname = '/home/x/runs/dqn_search_'+ strain +'/'
+dirname = '/scratch/users/xzhang11/frankMEPruns/dqn_search_'+ strain +'/'
 
 # Cohesive energy is determined by applied strain.
 # Run separate simualations to determined Cohesive energy.
@@ -64,7 +64,7 @@ swobj.restoreConfig()
 stateA = np.intersect1d(swobj.pairs[:,0], stateA)
 stateB = np.intersect1d(swobj.pairs[:,0], stateB)
 alg = DQNSearch(stateA, stateB,
-                learning_rate=0.01,
+                learning_rate=0.1,
                 reward_decay=0.9,
                 e_greedy=0.9,
                 replace_target_iter=20,
