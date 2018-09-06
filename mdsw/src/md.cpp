@@ -9491,7 +9491,7 @@ void MDFrame::NbrList_reconstruct_use_link_list(int iatom)
     double rsmax2;
     Vector3 s,sij,rij,h;
 
-    printf("NbrList_reconstruct_use_link_list iatom=%d",iatom);
+    //printf("NbrList_reconstruct_use_link_list iatom=%d",iatom);
     if(iatom==-1)
         NbrList_init(_NP*allocmultiple,_NNM);
     
