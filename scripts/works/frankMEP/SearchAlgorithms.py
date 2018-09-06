@@ -288,13 +288,13 @@ class DQNSearch(object):
             # forward feed observation and get q value
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s : observation})
             action = np.argmax(actions_value + negative_penalty)
-            #print("In choose action 1\n")
-            #print("actions_value.shape = {0}".format(actions_value.shape))
-            #print("penalty.shape = {0}".format(self.penalty.shape))
-            #print("actions_value = {0}".format(actions_value + self.penalty))
-            #print("q_eval = {0}".format(self.q_eval))
-            #print("stateB = {0}".format(len(self.stateB)))
-            #print("action 1 = {0}".format(action))
+            print("In choose action 1\n")
+            print("actions_value.shape = {0}".format(actions_value.shape))
+            print("penalty.shape = {0}".format(negative_penalty.shape))
+            print("actions_value = {0}".format(actions_value + negative_penalty))
+            print("q_eval = {0}".format(self.q_eval))
+            print("stateB = {0}".format(len(self.stateB)))
+            print("action 1 = {0}".format(action))
 
         else:
             # when exploring, keep choosing until an atom within the neighbor of existing nucleus is chosen
@@ -354,12 +354,13 @@ class DQNSearch(object):
 
         for episode in range(n_episodes):
             nucleus = env.reset()
-            negative_penalty = np.zeros((1,self.n_actions))
+            nucleus_penalty = np.zeros((1,self.n_actions))
+            neighbor_penalty = np.zeros((1,self.n_actions))
             # don`t add new atom in existing nucleus 
-            negative_penalty[0][np.where(nucleus2bits(nucleus,self.stateB)==1)[0]] = float("-inf")
+            nucleus_penalty[0][np.where(nucleus2bits(nucleus,self.stateB)==1)[0]] = float("-inf")
             # only add atom to negibhorhood of exisitng nucleus
-            bdyatoms = find_nbr_atoms(swobj.nbrlist, nucleus, self.stateB)
-            negative_penalty[0][np.where(nucleus2bits(bdyatoms,self.stateB)==0)[0]] = float("-inf")
+            bdyatoms = find_nbr_atoms(env.nbrlist, nucleus, self.stateB)
+            neighbor_penalty[0][np.where(nucleus2bits(bdyatoms,self.stateB)==0)[0]] = float("-inf")
             observation = nucleus2bits(nucleus, self.stateB)
             totreturn = 0
 
@@ -367,7 +368,7 @@ class DQNSearch(object):
                 #env.render()
 
                 # RL choose action based on observation
-                action = self.choose_action(observation, negative_penalty)
+                action = self.choose_action(observation, nucleus_penalty + neighbor_penalty)
 
                 # Execute action (add the i_th element of nbitsdiff(nucleus,B) to observation)
                 # Sine stateB = {1111..11}, that is equivalent to find i_th zero element of observation
@@ -379,16 +380,17 @@ class DQNSearch(object):
                 i,j = np.where(env.pairs==atom_I)
                 atom_J = env.pairs[i[0],1-j[0]]
 
-                if (atom_I in nucleus) or (atom_J in nucleus):
+                if not done and ((atom_I in nucleus) or (atom_J in nucleus)):
                     print("nucleus = {0}, shape = {1}, unique shape = {2}, done = {3}, atom_I = {4}, atom_J = {5}, stateB = {6}".format(nucleus, len(nucleus), len(np.unique(nucleus)), (nucleus2bits(nucleus, self.stateB)==nucleus2bits(self.stateB, self.stateB)).all(), atom_I, atom_J, self.stateB))
                     exit(0)
 
                 nucleus = np.append(nucleus, [atom_I, atom_J])
 
-                negative_penalty[0][action] = float("-inf")
+                nucleus_penalty[0][action] = float("-inf")
                 # only add atom to negibhorhood of exisitng nucleus
-                bdyatoms = find_nbr_atoms(swobj.nbrlist, nucleus, self.stateB)
-                negative_penalty[0][np.where(nucleus2bits(bdyatoms,self.stateB)==0)[0]] = float("-inf")
+                neighbor_penalty = np.zeros((1,self.n_actions))
+                bdyatoms = find_nbr_atoms(env.nbrlist, nucleus, self.stateB)
+                neighbor_penalty[0][np.where(nucleus2bits(bdyatoms,self.stateB)==0)[0]] = float("-inf")
 
                 # RL take action and get next observation and reward
                 # NOTE: returned nucleus is the same as the one passed in.
@@ -416,6 +418,8 @@ class DQNSearch(object):
 
                 if done:
                     break
+
+
                 step +=1
 
             with open(env.dirname+"A.log", "a") as fp:

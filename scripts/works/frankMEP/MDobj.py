@@ -44,7 +44,7 @@ class MDobj(object):
     def relax_fixbox(self):
         self.sw.conj_ftol = 1e-4
         self.sw.conj_itmax = 3800
-        self.sw.conj_fevalmax = 6000
+        self.sw.conj_fevalmax = 3 # 6000
         self.sw.conj_fixbox = 1
         self.sw.relax()
 
