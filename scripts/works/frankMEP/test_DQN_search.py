@@ -24,7 +24,7 @@ import mdsw
 # Control parameters
 
 strain = "0.05"
-dirname = '/scratch/users/xzhang11/frankMEPruns/dqn_neighbor_search_'+ strain +'/'
+dirname = 'dqn_neighbor_search_'+ strain +'/'
 
 # Cohesive energy is determined by applied strain.
 # Run separate simualations to determined Cohesive energy.
@@ -61,8 +61,21 @@ swobj.restoreConfig()
 
 # Choose which search algorithm to use
 
-stateA = np.intersect1d(swobj.pairs[:,0], stateA)
-stateB = np.intersect1d(swobj.pairs[:,0], stateB)
+# Make sure loop through the plane having more atoms around stateB
+# Or loop through the bottom plane. Loop through up plane has a problem:
+# the last two atoms cannot be found at the end of an episode
+# This needs to be fixed !!!!!!
+stateA_u = np.intersect1d(swobj.pairs[:,0], stateA)
+stateB_u = np.intersect1d(swobj.pairs[:,1], stateB)
+stateA_d = np.intersect1d(swobj.pairs[:,0], stateA)
+stateB_d = np.intersect1d(swobj.pairs[:,1], stateB)
+print(len(stateA_u))
+print(len(stateA_d))
+print(len(stateB_u))
+print(len(stateB_d))
+stateB = stateB_u if len(stateB_u)>len(stateB_d) else stateB_d
+stateA = stateA_u if len(stateA_u)>len(stateA_d) else stateA_d
+
 alg = DQNSearch(stateA, stateB,
                 learning_rate=0.1,
                 reward_decay=0.9,

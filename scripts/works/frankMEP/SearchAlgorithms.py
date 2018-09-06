@@ -355,17 +355,32 @@ class DQNSearch(object):
         for episode in range(n_episodes):
             nucleus = env.reset()
             nucleus_penalty = np.zeros((1,self.n_actions))
-            neighbor_penalty = np.zeros((1,self.n_actions))
-            # don`t add new atom in existing nucleus 
-            nucleus_penalty[0][np.where(nucleus2bits(nucleus,self.stateB)==1)[0]] = float("-inf")
-            # only add atom to negibhorhood of exisitng nucleus
-            bdyatoms = find_nbr_atoms(env.nbrlist, nucleus, self.stateB)
-            neighbor_penalty[0][np.where(nucleus2bits(bdyatoms,self.stateB)==0)[0]] = float("-inf")
             observation = nucleus2bits(nucleus, self.stateB)
             totreturn = 0
 
             while True:
+                #print("nucleus = {0}, shape = {1}, unique shape = {2}, done = {3}, stateB = {4}, len(B)={5}".format(nucleus, len(nucleus), len(np.unique(nucleus)), (nucleus2bits(nucleus, self.stateB)==nucleus2bits(self.stateB, self.stateB)).all(), self.stateB, len(self.stateB)))
+
                 #env.render()
+                # don`t add new atom in existing nucleus
+                nucleus_penalty[0][np.where(nucleus2bits(nucleus,self.stateB)==1)[0]] = float("-inf")
+                # only add atom to negibhorhood of exisitng nucleus
+                neighbor_penalty = np.zeros((1,self.n_actions))
+                bdyatoms = find_nbr_atoms(env.nbrlist, nucleus, self.stateB)
+                neighbor_penalty[0][np.where(nucleus2bits(bdyatoms,self.stateB)==0)[0]] = float("-inf")
+                #print("bdyatoms = {0}".format(bdyatoms))
+                if 0: # len(nucleus) == 86:
+                    print("two remaining atoms are {0}".format(np.setdiff1d(self.stateB, nucleus)))
+                    Bt = env.nbrlist[nucleus,:]
+                    print(Bt)
+                    print('\n\n')
+                    At = np.setdiff1d(np.extract(Bt>=0,Bt), nucleus)
+                    print(At)
+                    print('\n\n')
+                    Ct = np.intersect1d(self.stateB, At)
+                    print(Ct)
+                    print('\n\n')
+                    exit(0)
 
                 # RL choose action based on observation
                 action = self.choose_action(observation, nucleus_penalty + neighbor_penalty)
@@ -380,24 +395,23 @@ class DQNSearch(object):
                 i,j = np.where(env.pairs==atom_I)
                 atom_J = env.pairs[i[0],1-j[0]]
 
-                if not done and ((atom_I in nucleus) or (atom_J in nucleus)):
+                if ((atom_I in nucleus) or (atom_J in nucleus)):
                     print("nucleus = {0}, shape = {1}, unique shape = {2}, done = {3}, atom_I = {4}, atom_J = {5}, stateB = {6}".format(nucleus, len(nucleus), len(np.unique(nucleus)), (nucleus2bits(nucleus, self.stateB)==nucleus2bits(self.stateB, self.stateB)).all(), atom_I, atom_J, self.stateB))
                     exit(0)
 
                 nucleus = np.append(nucleus, [atom_I, atom_J])
 
-                nucleus_penalty[0][action] = float("-inf")
-                # only add atom to negibhorhood of exisitng nucleus
-                neighbor_penalty = np.zeros((1,self.n_actions))
-                bdyatoms = find_nbr_atoms(env.nbrlist, nucleus, self.stateB)
-                neighbor_penalty[0][np.where(nucleus2bits(bdyatoms,self.stateB)==0)[0]] = float("-inf")
+                #nucleus_penalty[0][action] = float("-inf")
+                ## only add atom to negibhorhood of exisitng nucleus
+                #neighbor_penalty = np.zeros((1,self.n_actions))
+                #bdyatoms = find_nbr_atoms(env.nbrlist, nucleus, self.stateB)
+                #neighbor_penalty[0][np.where(nucleus2bits(bdyatoms,self.stateB)==0)[0]] = float("-inf")
 
                 # RL take action and get next observation and reward
                 # NOTE: returned nucleus is the same as the one passed in.
                 #       formally, step should only take in ``action'' as input.
                 nucleus, reward, done,_ = env.step(nucleus, self.stateB)
                 totreturn += reward
-                # print("nucleus = {0}, shape = {1}, unique shape = {2}, done = {3}".format(nucleus, len(nucleus), len(np.unique(nucleus)), (nucleus2bits(nucleus, self.stateB)==nucleus2bits(self.stateB, self.stateB)).all()))
 
 
                 observation_ = nucleus2bits(nucleus, self.stateB)
