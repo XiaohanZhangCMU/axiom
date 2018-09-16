@@ -1,4 +1,4 @@
-# axiom: gpu/c++ & python binding playground using boost and pybind11.
+# An openAI/gym environment for Molecular Dynamics (GPU accelerated).
 
 0) This fromework allows you to bind a existing C++ project with python. 
 1) I use pybind11 (https://github.com/pybind/pybind11) a wrapper of boost and CMakeLists to bind C++ codes with python2.7 and python3.6.
