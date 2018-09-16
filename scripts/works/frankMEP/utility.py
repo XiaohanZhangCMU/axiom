@@ -58,7 +58,7 @@ def nbitsdiff(bit1, bit2):
 def nbits1(bit):
     return len(np.where(bit==1)[0])
 
-def main():
+def merge_database_files():
     obj1_file = 'DBFILES/db_0.05_1'
     obj2_file = 'DBFILES/db_0.05_2'
     obj3_file = 'DBFILES/db_0.05_3'
@@ -75,6 +75,36 @@ def main():
     print("merged obj has {0} keys".format(len(obj.keys())))
     save_obj(obj, 'DBFILES/db_0.05');
 
+def dbfile_sanity_check():
+    db = load_obj('DBFILES/db_0.05_clearance');
+    import numpy as np
+    import matplotlib.pyplot as plt
+    dbarr = []
+    error_cnt = 0
+    print('db has {0} keys.'.format(len(db.keys())))
+    for key, val in db.items():
+        dbarr.append([key.count('1'), val])
+        if val > -165000:
+            error_cnt += 1
+            print('val = {0}, error count = {1}'.format(val, error_cnt))
+
+    dbarr = np.array(dbarr)
+
+    #plt.scatter(dbarr[:,0], dbarr[:,1])
+    #plt.show()
+
+def dbfile_rm_outliers():
+    db = load_obj('DBFILES/db_0.05');
+    print('db has {0} keys before clearance.'.format(len(db.keys())))
+    for key in list(db.keys()):
+        if db[key] > -165000:
+            del db[key]
+
+    print('db has {0} keys after clearance.'.format(len(db.keys())))
+    save_obj(db, 'DBFILES/db_0.05_clearance');
+
 if __name__ == "__main__":
-    main()
+    #merge_database_files()
+    dbfile_rm_outliers()
+    dbfile_sanity_check()
 
