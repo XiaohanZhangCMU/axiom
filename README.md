@@ -4,6 +4,14 @@ Why called axiom? **aXioM** == **Xiao** Han Zhang + **Mo** Han Jiang :)
 
 ### Axiom is a framework that allows you to quickly bind a GPU-accelerated C++ project with python-3 using pybind11 (https://github.com/pybind/pybind11, a wrapper of boost)  
 
+### Examples:
+1) zoo: playground of simple pybind11 binding. 
+2) tensor: gpu and boost::share_ptr for automatic gpu memeory allocation and syncronization. 
+3) mdsw. Convert MD++ (http://micro.stanford.edu/MDpp),a molecular dynamics simulator, to gym environment. Work with several reinforcement learning algorithms: greedy, deepQ, etc. Check scripts/works/frankMEP/SearchAlgorihtm.py.
+
+<figcaption> Minimum Atomistic Defect (Frank-Partial Dislocation) Nucleation Energy Barrier Found by Greedy Algorithm </figcaption>
+<img src="animation.gif" alt="Drawing" style="width: 400px;"/>
+
 ### For scientific computing comunity, it is ideal that one can move the computation laborous part of your code to C++, and call them from python to interface many other available packages. A direct benefit of using axiom is making your own C++ simulator an OpenAI/gym environment and run all kinds of Reinforcement learning algorithms easily.  
 
 
@@ -38,13 +46,6 @@ Steps to follow to create your own environment:
 Optional packages for mdsw and mdfem. Required only if you want to visualize mdsw.   
 5) pip install PyOpenGL PyOpenGL_accelerate (On Ubuntu or Linux, you need to do: sudo apt-get install python-opengl as well)
 6) python3 -m pip install Pillow   
-
-## Examples:
-0) zoo: playground of simple pybind11 binding. 
-1) tensor: gpu and boost::share_ptr for automatic gpu memeory allocation and syncronization. 
-2) mdsw and mdfem. two modules from MD++ (http://micro.stanford.edu/MDpp), a molecular dynamics simulation package written in C++. 
-
-<img src="animation.gif" alt="Drawing" style="width: 400px;"/>
 
 Bug reports or questions:
 
