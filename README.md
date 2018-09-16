@@ -44,7 +44,7 @@ Optional packages for mdsw and mdfem. Required only if you want to visualize mds
 1) tensor: gpu and boost::share_ptr for automatic gpu memeory allocation and syncronization. 
 2) mdsw and mdfem. two modules from MD++ (http://micro.stanford.edu/MDpp), a molecular dynamics simulation package written in C++. 
 
-<img src="animation2.gif" alt="Drawing" style="width: 400px;"/>
+<img src="animation.gif" alt="Drawing" style="width: 400px;"/>
 
 Bug reports or questions:
 
