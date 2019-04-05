@@ -1,11 +1,11 @@
-# Axiom Drives C++ Scientific Computing Codes with Python
+# Axiom Drives Scientific Computing Codes with Python
 
 Authors: **aXioM**=**Xiao**Han+**Mo**Han :)
 
-### This framework helps bind (GPU/MPI-accelerated) C++ code with python using pybind11 (https://github.com/pybind/pybind11, a wrapper of boost)  
-### For example, packages/mdsw implements Molecular Dynamics in C++ and it interfaces with OpenAI/gym environment through Python.
-### New package can be added easily by following the existing packages. 
-### Axiom allows C++ and Python to communicate efficiently within memory through Numpy.
+## This framework helps bind (GPU/MPI-accelerated) C++ codes with Python using pybind11 (https://github.com/pybind/pybind11, a wrapper of boost)  
+## For example, packages/mdsw implements Molecular Dynamics in C++ and it interfaces with OpenAI/gym environment through Python.
+## New package can be added easily by following the existing packages. 
+## Axiom allows C++ and Python to communicate efficiently within memory through Numpy.
 
 <figcaption> Minimum Atomistic Defect (Frank-Partial Dislocation) Nucleation Energy Barrier Found by Greedy Algorithm </figcaption>
 <img src="animation.gif" alt="Drawing" style="width: 400px;"/>
