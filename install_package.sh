@@ -13,6 +13,11 @@ case ${unameOut} in
 esac
 echo "Install package to using ${machine} configurations"
 
+cmake_cmd=$(which cmake)
+
+if [ -z $cmake_cmd ] ; then
+    echo "${RED}Please install CMake (3.xx) first"
+fi
 if [ ! -d build ];
 then
     mkdir build
