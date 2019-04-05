@@ -1,5 +1,6 @@
 get_filename_component(target ${CMAKE_CURRENT_SOURCE_DIR} NAME)   # put current folder name as target name
 
+#FIND_PACKAGE ( X11 REQUIRED )
 if(APPLE)
     if(${HostName} MATCHES "Mohans-iMac.local") #imac
         set(X11_DIR "/usr/X11/")
@@ -9,7 +10,7 @@ if(APPLE)
         set(X11_DIR "/opt/X11/")
     endif()
 endif()
-include_directories(${include_directories} "include" "../../ext_pybind11/include/" ${X11_include_dir} "${X11_DIR}/include")
+include_directories(${include_directories} "include" "../../ext_pybind11/include/" "${X11_DIR}/include")
 link_directories(${link_directories} "${X11_DIR}/lib")
 
 #get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
