@@ -1,18 +1,19 @@
-# openAI/gym environment for Molecular Dynamics 
+# Axiom Drives Your Scientific Computing Code with Deep Learning
 
-Why called axiom? **aXioM** == **Xiao** Han Zhang + **Mo** Han Jiang :)
+Authors: **aXioM**=**Xiao**Han+**Mo**Han :)
 
-### Axiom is a framework that allows you to quickly bind a GPU-accelerated C++ project with python-3 using pybind11 (https://github.com/pybind/pybind11, a wrapper of boost)  
+### For scientific computing, it is ideal to use C++ to do physical simulation, and build machine learning models to mine the date. 
+### This framework allows easy bindng of (GPU/MPI-accelerated) C++ code with python3 thanks to pybind11 (https://github.com/pybind/pybind11, a wrapper of boost)  
+### Axiom implements Molecular Dynamics as an OpenAI/gym environment, which makes it possible to interface Reinforcement learning algorithms easily.  
 
-### Examples:
-1) zoo: playground of simple pybind11 binding. 
+### Packages:
+1) zoo: a playground for simple pybind11 binding. 
 2) tensor: gpu and boost::share_ptr for automatic gpu memeory allocation and syncronization. 
-3) mdsw. Convert MD++ (http://micro.stanford.edu/MDpp),a molecular dynamics simulator, to gym environment. Work with several reinforcement learning algorithms: greedy, deepQ, etc. Check scripts/works/frankMEP/SearchAlgorihtm.py.
+3) mdsw: MD++ (http://micro.stanford.edu/MDpp),a molecular dynamics simulator. Working with reinforcement learning. Check packages/frankMEP/SearchAlgorihtm.py.
+4) mdfewm. Solve nonlinear neo-hookean FEM by minimizing potential energy.
 
 <figcaption> Minimum Atomistic Defect (Frank-Partial Dislocation) Nucleation Energy Barrier Found by Greedy Algorithm </figcaption>
 <img src="animation.gif" alt="Drawing" style="width: 400px;"/>
-
-### For scientific computing comunity, it is ideal that one can move the computation laborous part of your code to C++, and call them from python to interface many other available packages. A direct benefit of using axiom is making your own C++ simulator an OpenAI/gym environment and run all kinds of Reinforcement learning algorithms easily.  
 
 
 Steps to follow to create your own environment:
