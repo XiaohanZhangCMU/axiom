@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 RED='\033[0;31m'
 NOCOLOR='\033[0m'
@@ -58,14 +58,29 @@ else
     fi
 fi
 
-if [ "$machine" == "Mac" ];
+# For different servers, load different modules
+if [ "$machine" == "Linux" ] 
 then
-    cmake -DCMAKE_C_COMPILER=$(which gcc) -DCMAKE_CXX_COMPILER=$(which g++)  -DPYTHON_INCLUDE_DIR=$(python -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())")  -DPYTHON_LIBRARY=$(python -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") ..
+    case "$HOSTNAME" in
+        sh-ln*.stanford.edu) 
+            module load cmake
+            module load math
+            module load py-tensorflow/1.9.0_py36
+            module load py-keras/2.2.4_py36
+            module load cuda/9.0.176
+            ;;
+        *)  echo "${RED}Unknown linux machine!${NOCOLOR}" ;;
+    esac
+fi
+    
+if [ "$machine" == "Mac" ] ;
+then
+    cmake -DCMAKE_C_COMPILER=$(which gcc) -DCMAKE_CXX_COMPILER=$(which g++)  -DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())")  -DPYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") ..
 fi
 
-if [ "$machine" == "Linux" ];
+if [ "$machine" == "Linux" ] ;
 then
-    cmake -DCMAKE_C_COMPILER=$(which gcc) -DCMAKE_CXX_COMPILER=$(which g++) -DPYTHON_INCLUDE_DIR=$(python -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())")  -DPYTHON_LIBRARY=$(python -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))")  ..
+    cmake -DCMAKE_C_COMPILER=$(which gcc) -DCMAKE_CXX_COMPILER=$(which g++) -DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())")  -DPYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))")  ..
 fi
 
 make

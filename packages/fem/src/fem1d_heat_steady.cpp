@@ -103,7 +103,7 @@ void Fem::fem1d_heat_steady ( int n, double a, double b, double ua, double ub)
     -0.577350269189625764509148780502,
     +0.577350269189625764509148780502 };
   double weight[QUAD_NUM] = { 1.0, 1.0 };
-  double al, am, ar, wq, vl, vlp, vm, vmp, vr, vrp, xl, xm,xq, xr,bm, fxq, kxq; 
+  double al, am, ar, wq, vlp, vm, vmp, vrp, xl, xm,xq, xr,bm, fxq, kxq; 
   double *amat, *bvec;
 
   this->n = n;
@@ -145,13 +145,13 @@ void Fem::fem1d_heat_steady ( int n, double a, double b, double ua, double ub)
 
       wq = weight[q] * ( xm - xl ) / 2.0;
 
-      vl =  ( xm - xq ) / ( xm - xl );
+      //vl =  ( xm - xq ) / ( xm - xl );
       vlp =      - 1.0  / ( xm - xl );
 
       vm =  ( xq - xl ) / ( xm - xl );
       vmp =      + 1.0  / ( xm - xl );
 
-      vr =  0.0;
+      //vr =  0.0;
       vrp = 0.0;
 
       kxq = k ( xq );
@@ -176,13 +176,13 @@ void Fem::fem1d_heat_steady ( int n, double a, double b, double ua, double ub)
 
       wq = weight[q] * ( xr - xm ) / 2.0;
 
-      vl = 0.0;
+      //vl = 0.0;
       vlp = 0.0;
 
       vm = ( xr - xq ) / ( xr - xm );
       vmp =     - 1.0  / ( xr - xm );
 
-      vr = ( xq - xm ) / ( xr - xm );
+      //vr = ( xq - xm ) / ( xr - xm );
       vrp =      1.0   / ( xr - xm );
 
       kxq = k ( xq );
@@ -445,11 +445,10 @@ void Fem::timestamp ( ) { // prints current time stamp
 # define TIME_SIZE 40
   static char time_buffer[TIME_SIZE];
   const struct std::tm *tm_ptr;
-  size_t len;
-  std::time_t now;
-  now = std::time ( NULL );
+  //size_t len;
+  std::time_t now = std::time ( NULL );
   tm_ptr = std::localtime ( &now );
-  len = std::strftime ( time_buffer, TIME_SIZE, "%d %B %Y %I:%M:%S %p", tm_ptr );
+  std::strftime ( time_buffer, TIME_SIZE, "%d %B %Y %I:%M:%S %p", tm_ptr );
   std::cout << time_buffer << "\n";
   return;
 # undef TIME_SIZE
