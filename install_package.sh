@@ -68,6 +68,9 @@ then
             module load py-tensorflow/1.9.0_py36
             module load py-keras/2.2.4_py36
             module load cuda/9.0.176
+            module load system
+            module load x11
+            module load openblas
             ;;
         *)  echo "${RED}Unknown linux machine!${NOCOLOR}" ;;
     esac
