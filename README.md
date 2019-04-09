@@ -41,6 +41,8 @@ This framework helps bind (GPU/MPI-accelerated) C++ codes with Python using pybi
 
 Bug reports or questions:
 
+1) Note: python script should not have the same name as the module because "module load" refers to the currently used python script, not the dynamic libraries.
+
 xiaohanzhang.cmu@gmail.com
 
 

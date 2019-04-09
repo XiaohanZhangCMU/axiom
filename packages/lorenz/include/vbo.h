@@ -7,6 +7,9 @@
  *
  */
 
+#ifndef __VBO_H__
+#define __VBO_H__
+
 // Location/Normals
 #define X_POS 0
 #define Y_POS 1
@@ -45,3 +48,5 @@ void destroyVBO();
 
 void drawVBO(int start, int numvers, int line);
 void drawVBOComponents(int start, int numvers);
+
+#endif

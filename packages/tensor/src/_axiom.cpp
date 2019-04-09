@@ -34,7 +34,7 @@ PYBIND11_MODULE(tensor, m) {
     // optional module doc string
     m.doc() = "Tensor class exposure";
 
-    /* Expose the class Animal */
+    /* Expose the class Tensor */
     bp::class_<Tensor<Dtype> >(m,"Tensor", bp::buffer_protocol())
         .def(bp::init<> ())
         .def("Reshape", &Tensor<Dtype>::Reshape)
