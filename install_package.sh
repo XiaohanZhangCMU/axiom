@@ -21,6 +21,9 @@ fi
 if [ ! -d build ];
 then
     mkdir build
+else
+    rm -rf build  # !!! Toggle this line if you want to save build history
+    mkdir build
 fi
 cd build
 
@@ -94,5 +97,5 @@ fi
 make
 
 cd ..
-#rm -rf build
+rm -rf build
 rm CMakeLists.txt
