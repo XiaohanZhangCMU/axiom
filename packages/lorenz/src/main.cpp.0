@@ -15,7 +15,7 @@
 #include <GLUT/glut.h>
 
 
-#include "vector.hpp"
+#include "linalg3.h"
 
 #include "drawing.h"
 #include "solver.h"
@@ -62,8 +62,8 @@ double dt;
 double t;
 int points;
 int solver;
-Vector currentPoint;
-Vector initial;
+Vector3 currentPoint;
+Vector3 initial;
 double SIGMA;
 double B;
 double R;
@@ -78,13 +78,11 @@ double R;
 //int skip;
 //int points;
 
-#pragma warning(pop)
+//#pragma warning(pop)
 
 
 void fillVBO() {
 	
-	
-
 	printf("Filling VBO\n");
 
 	Vertex *vertices = (Vertex *) malloc(points*sizeof(Vertex));

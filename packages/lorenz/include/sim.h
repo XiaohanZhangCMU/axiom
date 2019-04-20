@@ -18,7 +18,7 @@
 #include <GLUT/glut.h>
 
 
-#include "vector.hpp"
+#include "linalg3.h"
 
 #include "drawing.h"
 #include "solver.h"
@@ -44,22 +44,36 @@ static int lasty=0;
 class Sim {
     public:
 // Camera
-    Sim() { }
+    Sim() : trajectory(0) {
+      //  this->max_points = MAX_POINTS;
+        this->dt = 0.001;
+        this->t = 0;
+        this->points = MAX_POINTS;
+    }
 
-    int run();
+    ~Sim() { 
+//        if (trajectory) free(this->trajectory);
+    }
+
+    void run_fine_ODE(int points, double sigma, double beta,
+            double gamma, double t0, double x0, double y0, double z0);
+
+    class Vector3 *trajectory;
+    int points;
+    double dt;
+    double t;
 };
 
-void fillVBO();
-void drawDirect();
-void drawFigure();
-void drawComponents();
-void draw();
-void timer(int valor);
-void keyboardDown(unsigned char key, int x, int y);
-void mouseClick(int button, int state, int x, int y);
-void mouseMotion(int x, int y);
-void reshape(int w, int h);
-void initGL(int width, int height);
+//void drawDirect();
+//void drawFigure();
+//void drawComponents();
+//void draw();
+//void timer(int valor);
+//void keyboardDown(unsigned char key, int x, int y);
+//void mouseClick(int button, int state, int x, int y);
+//void mouseMotion(int x, int y);
+//void reshape(int w, int h);
+//void initGL(int width, int height);
 
 } /* namespace axiom */
 #endif /* __FEM1D_HPP__ */
