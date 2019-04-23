@@ -13,13 +13,11 @@ from termcolor import colored, cprint
 import numpy as np
 import tensorflow as tf
 
-
 def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
     sub_nx, sub_nz = 16, 16
     patch_x, patch_z = 1., 1.
 
     x_ph = tf.placeholder(dtype=np.float64, shape=(None, sub_nx, sub_nz, 2), name='input')
-    model = mlp(num_layers=2, num_hidden=32)
 
     def mlp(x, hidden_sizes=(32,), activation=tf.tanh, output_activation=None):
         for h in hidden_sizes[:-1]:
@@ -56,9 +54,11 @@ def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
     """
     lr = 1e-3  # learning rate
     tol = 1e-9 # convergence tol
-    batch_size = 1<<5
+    batch_size = 1<<3
+    n_batch = 1<<6
     epochs = 1<<20
 
+    loss_sum,G = loss_function(x_ph)
     optimizer = tf.train.AdamOptimizer(lr)
     grads_and_vars = optimizer.compute_gradients(loss_sum)
     op = optimizer.apply_gradients(grads_and_vars,global_step=tf.Variable(0, trainable=False))
@@ -69,15 +69,11 @@ def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
 
     for epoch in range(epochs): # Minimize loss_sum til |loss-prev_loss|<tol
 
-        # Sample a batch from cartesian envelope of domain
-        ind = np.arange(n_sample)
-        np.random.shuffle(ind)
-
         for batch in range(n_batch):
+            # Sample a batch from cartesian envelope of domain
             X_sample = sample_domain(batch_size)
             # Feed X to x_ph, do optimization
-            batch_loss = loss_function(x_ph)
-            result = sess.run([op, batch_loss, G], feed_dict={x_ph:X_sample})
+            result = sess.run([op, loss_sum, G], feed_dict={x_ph:X_sample})
 
         if epoch % 100 == 0:
             print("Epoch = {:5d}; Residuals={: 5.10E};".format(epoch, result[1]))
@@ -91,7 +87,8 @@ def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
     cprint("Failed to converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
 
 if __name__ == '__main__':
-    solve_lorenz_pde(xmin=-10, xmax=10, zmin=-10, zmax=10, epsilon=0.1)
+    solve_lorenz_pde(xmin=-10, xmax=10, zmin=-10, zmax=10, epsilon=0.1,
+            sigma=10, beta=8./3, gamma=25)
 
 
 
