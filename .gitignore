@@ -14,5 +14,6 @@
 bin
 lib
 build
+dietDS
 .DS_Store
 __pycache__
