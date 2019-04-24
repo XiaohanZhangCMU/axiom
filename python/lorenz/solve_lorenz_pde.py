@@ -15,6 +15,20 @@ import sys
 from termcolor import colored, cprint
 import numpy as np
 import tensorflow as tf
+from model import model
+
+def lr(epoch):
+    learning_rate = 1e-3
+    if epoch > 80:
+        learning_rate *= 0.5e-3
+    elif epoch > 60:
+        learning_rate *= 1e-3
+    elif epoch > 40:
+        learning_rate *= 1e-2
+    elif epoch > 20:
+        learning_rate *= 1e-1
+    return learning_rate
+
 
 def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
     sub_nx, sub_nz = 16, 16
@@ -36,7 +50,8 @@ def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
 
     def loss_function(inputs):
         xadv = tf.identity(inputs) # Such that dG/d_xadv = dG/d_x
-        G = mlp(xadv, hidden_sizes=(32,1))
+        #G = mlp(xadv, hidden_sizes=(32,1))
+        G, learning_rate = model(xadv)
         dG = tf.gradients(G, xadv)[0]
         # d2G,_ = tf.hessians(G, xadv) # Regularizer
         print('xadv, G and dG shape')
@@ -53,18 +68,18 @@ def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
                                     # + tf.math.scalar_mul(epsilon,(d2Gx+d2Gz))  # Regularizer
                                    )**2)
         print(loss_sum.shape)
-        return loss_sum, G
+        return loss_sum, G, learning_rate
 
     """ Optimization setup
     """
-    lr = 1e-3  # learning rate
+    #lr = 1e-3  # learning rate
     tol = 1e-9 # convergence tol
     batch_size = 1<<5
     n_batch = 1<<6
     epochs = 1<<20
 
-    loss_sum,G = loss_function(x_ph)
-    optimizer = tf.train.AdamOptimizer(lr)
+    loss_sum,G,learning_rate = loss_function(x_ph)
+    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=0.9,beta2=0.999,epsilon=1e-08)
     grads_and_vars = optimizer.compute_gradients(loss_sum)
     op = optimizer.apply_gradients(grads_and_vars,global_step=tf.Variable(0, trainable=False))
 
@@ -78,7 +93,7 @@ def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
             # Sample a batch from cartesian envelope of domain
             X_sample = sample_domain(batch_size)
             # Feed X to x_ph, do optimization
-            result = sess.run([op, loss_sum, G], feed_dict={x_ph:X_sample})
+            result = sess.run([op, loss_sum, G], feed_dict={x_ph:X_sample, learning_rate:lr(epoch)})
 
         if epoch % 100 == 0:
             print("Epoch = {:5d}; Residuals={: 5.10E};".format(epoch, result[1]))
