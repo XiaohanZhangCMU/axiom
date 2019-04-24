@@ -7,6 +7,9 @@
     1) Run time shape dimension does not match?
     2) Normalize input patch to have values [-1,1] for each channel?
     3) Add laplacian regularizer to PDE.
+
+    Found papers:
+    1) https://arxiv.org/pdf/1708.07469.pdf essentially following the same steps
 """
 import sys
 from termcolor import colored, cprint
@@ -19,7 +22,7 @@ def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
 
     x_ph = tf.placeholder(dtype=np.float64, shape=(None, sub_nx, sub_nz, 2), name='input')
 
-    def mlp(x, hidden_sizes=(32,), activation=tf.tanh, output_activation=None):
+    def mlp(x, hidden_sizes=(32,1), activation=tf.tanh, output_activation=None):
         for h in hidden_sizes[:-1]:
             x = tf.layers.dense(x, units=h, activation=activation)
         return tf.layers.dense(x, units=hidden_sizes[-1], activation=output_activation)
@@ -33,18 +36,20 @@ def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
 
     def loss_function(inputs):
         xadv = tf.identity(inputs) # Such that dG/d_xadv = dG/d_x
-        G = mlp(xadv, hidden_sizes=[32,1])
+        G = mlp(xadv, hidden_sizes=(32,1))
         dG = tf.gradients(G, xadv)[0]
         # d2G,_ = tf.hessians(G, xadv) # Regularizer
-        print('G and dG shape')
+        print('xadv, G and dG shape')
         print(xadv.shape)
         print(G.shape)
         print(dG.shape)
+        print((G-xadv[:,:,:,0:1]).shape)
+        print('done')
 
-        loss_sum = tf.reduce_mean(((sigma*((G-xadv[:,0])*dG[:,0])) +
-                                   (((xadv[:,0]*G)-beta*xadv[:,1])*dG[:,1]) +
+        loss_sum = tf.reduce_mean(((sigma*((G-xadv[:,:,:,0:1])*dG[:,:,:,0:1])) +
+            (((xadv[:,:,:,0:1]*G)-beta*xadv[:,:,:,1:2])*dG[:,:,:,1:2]) +
                                    G +
-                                   (xadv[:,0]*(xadv[:,1]-gamma))
+                                   (xadv[:,:,:,0:1]*(xadv[:,:,:,1:2]-gamma))
                                     # + tf.math.scalar_mul(epsilon,(d2Gx+d2Gz))  # Regularizer
                                    )**2)
         print(loss_sum.shape)
@@ -54,7 +59,7 @@ def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
     """
     lr = 1e-3  # learning rate
     tol = 1e-9 # convergence tol
-    batch_size = 1<<3
+    batch_size = 1<<5
     n_batch = 1<<6
     epochs = 1<<20
 
@@ -79,7 +84,7 @@ def solve_lorenz_pde(xmin, xmax, zmin, zmax, epsilon, sigma, beta, gamma):
             print("Epoch = {:5d}; Residuals={: 5.10E};".format(epoch, result[1]))
             # Save model weights
             # ...
-        if err < 1e-9:
+        if np.abs(result[1]) < 1e-9:
             cprint("Converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
             print("Residual={: 5.10E}.".format(result[1], nrm, err))
             return result[-1]
