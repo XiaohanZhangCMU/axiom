@@ -5,6 +5,34 @@ import functools
 import collections
 import multiprocessing
 
+def load_params(params_txt):
+    def isFloat(string):
+        try:
+            float(string)
+            return True
+        except ValueError:
+            return False
+
+    f = open(params_txt,'r')
+    d = {}
+    for line in f:
+        if '=' not in line:
+            continue
+        s = line.split('=')[1]
+        if '\\n' in line:
+            s = s[:-2]
+        s = s.strip()
+        if isFloat(s):
+            if s.isnumeric(): # integer
+                s = int(s)
+            else:
+                s = float(s)
+        else:
+            s = s[1:-1] # remove ' ' or " " around string
+        d[line.split('=')[0].strip() ] = s
+    f.close()
+    return d
+
 def get_session(config=None):
     """Get default session or create one with a given config"""
     sess = tf.get_default_session()

@@ -12,9 +12,11 @@
 *.dat
 *.log
 *.npy
+*.txt
 bin
 lib
 build
+log_tb
 dietDS
 .DS_Store
 __pycache__
