@@ -22,9 +22,10 @@ import numpy as np
 import tensorflow as tf
 #from model import model
 from dataset import dataset
+from utils import *
 
 def lr(epoch):
-    learning_rate = 1e-2
+    learning_rate = 1e-3
     if epoch > 80:
         learning_rate *= 0.5e-3
     elif epoch > 60:
@@ -76,7 +77,6 @@ def solve_lorenz_pde(**args):
 
     """ Optimization setup
     """
-    # saver = tf.train.Saver()
 
     loss_sum,G = loss_function(x_ph)
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=0.9,beta2=0.999,epsilon=1e-08)
@@ -88,7 +88,7 @@ def solve_lorenz_pde(**args):
     sess.run(tf.local_variables_initializer())
 
     refine_factor = 0.8
-    for refine_level in range(5):
+    for refine_level in range(1):
 
         args['patch_x'] = args['patch_x']*refine_factor if args['patch_x']*refine_factor > args['min_patch_x'] else args['min_patch_x']
         args['patch_z'] = args['patch_z']*refine_factor if args['patch_z']*refine_factor > args['min_patch_z'] else args['min_patch_z']
@@ -116,36 +116,43 @@ def solve_lorenz_pde(**args):
         cprint("Failed to converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
 
 
-    # Test
-    xi = 10
-    zi = 23
-    N = 10000
-    dt = 0.001
+#    # Test
+#    xi = 10
+#    zi = 23
+#    N = 10
+#    dt = 0.001
+#
+#    t =0
+#    coarse_traj = np.zeros((N,3))
+#    coarse_traj[t,0] = xi
+#    coarse_traj[t,1] = 0
+#    coarse_traj[t,2] = zi
+#
+#    for t in range(N):
+#        test_input = np.array(np.stack(np.meshgrid(np.linspace(xi-.5*patch_x,xi+.5*patch_x,sub_nx),
+#        np.linspace(zi-.5*patch_z, zi+.5*patch_z, sub_nz)), axis=-1))
+#        new_test_input = test_input.reshape((1, *(test_input.shape)))
+#        loss_sum_val = sess.run([loss_sum], feed_dict={x_ph:new_test_input})
+#        print('test output of loss_sum = {0}'.format(loss_sum_val[0]))
+#        y0 = sess.run([G], feed_dict={x_ph:new_test_input})
+#        yi = y0[0][0,7,7,0]
+#        xdot = sigma*(yi-xi)
+#        zdot = xi*yi - beta*zi
+#        xi = xi + xdot * dt
+#        zi = zi + zdot * dt
+#
+#        coarse_traj[t,0] = xi
+#        coarse_traj[t,1] = 0
+#        coarse_traj[t,2] = zi
 
-    t =0
-    coarse_traj = np.zeros((N,3))
-    coarse_traj[t,0] = xi
-    coarse_traj[t,1] = 0
-    coarse_traj[t,2] = zi
+    step = 0
+    saver = tf.train.Saver()
+    LOG_DIR = "/Users/xiaohan.zhang/Planet/Codes/axiom/python/lorenz/"
+    saver.save(sess, os.path.join(LOG_DIR, "model.ckpt"), step)
 
-    for t in range(N):
-        test_input = np.array(np.stack(np.meshgrid(np.linspace(xi-.5*patch_x,xi+.5*patch_x,sub_nx),
-        np.linspace(zi-.5*patch_z, zi+.5*patch_z, sub_nz)), axis=-1))
-        new_test_input = test_input.reshape((1, *(test_input.shape)))
-        loss_sum_val = sess.run([loss_sum], feed_dict={x_ph:new_test_input})
-        print('test output of loss_sum = {0}'.format(loss_sum_val[0]))
-        y0 = sess.run([G], feed_dict={x_ph:new_test_input})
-        yi = y0[0][0,7,7,0]
-        xdot = sigma*(yi-xi)
-        zdot = xi*yi - beta*zi
-        xi = xi + xdot * dt
-        zi = zi + zdot * dt
-
-        coarse_traj[t,0] = xi
-        coarse_traj[t,1] = 0
-        coarse_traj[t,2] = zi
-
-    # saver.save(sess, save_path=_SAVE_PATH, global_step=_global_step)
+    # Load from saved model
+    # saver = tf.train.Saver()
+    # saver.restore(sess, save_path=os.path.join(LOG_DIR, "model.ckpt-10"))
 
 if __name__ == '__main__':
 
