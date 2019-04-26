@@ -1,8 +1,8 @@
 """ Generate dataset for space sampling
 """
-#def dataset(n_samples = 1<<15, batch_size=1<<5, 
-#            xmin=-1, xmax=1, zmin=-1, zmax=1, 
-#            sub_nx=16, sub_nz=16, patch_x=1., patch_z=1., 
+#def dataset(n_samples = 1<<15, batch_size=1<<5,
+#            xmin=-1, xmax=1, zmin=-1, zmax=1,
+#            sub_nx=16, sub_nz=16, patch_x=1., patch_z=1.,
 #            db_save_path='./'):
 
 import numpy as np
@@ -14,11 +14,11 @@ def dataset(reuse=False, **args):
     xmin, xmax = args['xmin'], args['xmax']
     zmin, zmax = args['zmin'], args['zmax']
     sub_nx, sub_nz = args['sub_nx'], args['sub_nz']
-    patch_x, patch_z = args['patch_x'], args['patch_z'] 
+    patch_x, patch_z = args['patch_x'], args['patch_z']
     n_samples = args['n_samples']
     batch_size = args['batch_size']
 
-    db_file = args['db_save_path'] + 'open_cover_xmin_{0}_xmax_{1}_zmin_{2}_zmax_{3}_subnx_{4}_subnz_{5}_patchx_{6}_patch_z_{7}_batchsize_{8}_nsamples_{9}.npy'.format(xmin, xmax, zmin, zmax, sub_nx, sub_nz, patch_x, patch_z, batch_size, n_samples)
+    db_file = args['db_save_path'] + 'open_cover_xmin_{:5.2f}_xmax_{:5.2f}_zmin_{:5.2f}_zmax_{:5.2f}_subnx_{}_subnz_{}_patch_x_{:.2f}_patch_z_{:.2f}_batchsize_{}_nsamples_{}.npy'.format(xmin, xmax, zmin, zmax, sub_nx, sub_nz, patch_x, patch_z, batch_size, n_samples)
 
     if reuse and os.path.exists(db_file):
         db = np.load(db_file)
