@@ -53,13 +53,11 @@ def solve_pde(model, **args):
 
     for refine_level in range(1):
 
-        args['patch_x'] = args['patch_x']*refine_factor if args['patch_x']*refine_factor > args['min_patch_x'] else args['min_patch_x']
-        args['patch_z'] = args['patch_z']*refine_factor if args['patch_z']*refine_factor > args['min_patch_z'] else args['min_patch_z']
+        db = dataset(reuse = False, **args)
+        inds = np.arange(db.shape[0])
 
         for epoch in range(epochs): # Minimize loss_sum til |loss-prev_loss|<tol
 
-            db = dataset(reuse = False, **args)
-            inds = np.arange(db.shape[0])
             np.random.shuffle(inds)
 
             for index, ind in enumerate(inds):
@@ -76,6 +74,11 @@ def solve_pde(model, **args):
                 break
 
         cprint("Failed to converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
+
+        args['patch_x'] = args['patch_x']*refine_factor if args['patch_x']*refine_factor > args['min_patch_x'] else args['min_patch_x']
+        args['patch_z'] = args['patch_z']*refine_factor if args['patch_z']*refine_factor > args['min_patch_z'] else args['min_patch_z']
+
+
 
     step = 0
     saver = tf.train.Saver()
