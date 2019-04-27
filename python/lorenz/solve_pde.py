@@ -49,14 +49,14 @@ def solve_pde(model, **args):
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
     sess.run(tf.local_variables_initializer())
-    refine_factor = 0.8
+    refine_factor = 0.5
 
     for refine_level in range(1):
 
         db = dataset(reuse = False, **args)
         inds = np.arange(db.shape[0])
 
-        for epoch in range(epochs): # Minimize loss_sum til |loss-prev_loss|<tol
+        for epoch in range(epochs): 
 
             np.random.shuffle(inds)
 

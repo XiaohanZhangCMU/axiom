@@ -3,8 +3,6 @@ import numpy as np
 
 class Lorenz_Model:
     def __init__(self, **config):
-        batch_size = config['batch_size'] # 1<<5
-        epochs = config['epochs'] # 1<<20
         sigma = config['sigma']
         beta = config['beta']
         gamma = config['gamma']

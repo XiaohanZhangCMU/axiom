@@ -23,7 +23,7 @@ def dataset(reuse=False, **args):
         return np.array([np.stack(np.meshgrid(np.linspace(xi-.5*patch_x,xi+.5*patch_x,sub_nx), np.linspace(zi-.5*patch_z, zi+.5*patch_z, sub_nz)), axis=-1)
             for (xi,zi) in zip(xs,zs)])
 
-    db = np.array([sample_domain(batch_size) for ind in range(n_samples)])
+    db = np.array([sample_domain(batch_size) for _ in range(n_samples)])
     np.save(db_file, db)
     return db
 
