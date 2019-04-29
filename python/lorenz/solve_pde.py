@@ -26,14 +26,10 @@ from utils import *
 
 def lr(epoch):
     learning_rate = 1e-3
-    if epoch > 80:
-        learning_rate *= 0.5e-3
-    elif epoch > 60:
-        learning_rate *= 1e-3
-    elif epoch > 40:
-        learning_rate *= 1e-2
-    elif epoch > 20:
-        learning_rate *= 1e-1
+    if epoch > 120:
+        return (1e-4)
+    elif epoch > 80:
+        return (5e-4)
     return learning_rate
 
 
@@ -51,33 +47,44 @@ def solve_pde(model, **args):
     sess.run(tf.local_variables_initializer())
     refine_factor = 0.5
 
-    for refine_level in range(1):
+    kargs = args.copy()
+    Nx, Nz = 4, 4
+    region_x = (args['xmax']-args['xmin'])/Nx * 2
+    region_z = (args['zmax']-args['zmin'])/Nz * 2
+    x_linspace = np.linspace(args['xmin'], args['xmax'], Nx)
+    z_linspace = np.linspace(args['zmin'], args['zmax'], Nz)
 
-        db = dataset(reuse = False, **args)
-        inds = np.arange(db.shape[0])
+    for x0 in x_linspace:
+        for z0 in z_linspace:
+            xmin = x0 - region_x/2.0
+            xmax = x0 + region_x/2.0
+            zmin = z0 - region_z/2.0
+            zmax = z0 + region_z/2.0
 
-        for epoch in range(epochs): 
+            kargs['xmin'], kargs['xmax'] = xmin, xmax
+            kargs['zmin'], kargs['zmax'] = zmin, zmax
 
-            np.random.shuffle(inds)
+            db = dataset(reuse = False, **kargs)
+            inds = np.arange(db.shape[0])
 
-            for index, ind in enumerate(inds):
-                result = sess.run([model.op, model.loss_sum, model.G], feed_dict={model.x_ph:db[ind], model.learning_rate:lr(epoch)})
-                if index == 0 or index % 100 == 0:
-                    print("Index = {:5d}; Residuals={: 5.10E};".format(index, result[1]))
+            for epoch in range(epochs):
 
-            if epoch % 1 == 0:
-                print("Epoch = {:5d}; LR = {:5.10E}; Residuals={: 5.10E};".format(epoch, lr(epoch), result[1]))
+                np.random.shuffle(inds)
 
-            if np.abs(result[1]) < 1e-9:
-                cprint("Converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
-                print("Residual={: 5.10E}.".format(result[1], nrm, err))
-                break
+                for index, ind in enumerate(inds):
+                    result = sess.run([model.op, model.loss_sum, model.G], feed_dict={model.x_ph:db[ind], model.learning_rate:lr(epoch)})
+                    #if index == 0 or index % 100 == 0:
+                    #    print("Index = {:5d}; Residuals={: 5.10E};".format(index, result[1]))
 
-        cprint("Failed to converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
+                if epoch % 1 == 0:
+                    print("Epoch = {:5d}; LR = {:5.10E}; Residuals={: 5.10E};".format(epoch, lr(epoch), result[1]))
 
-        args['patch_x'] = args['patch_x']*refine_factor if args['patch_x']*refine_factor > args['min_patch_x'] else args['min_patch_x']
-        args['patch_z'] = args['patch_z']*refine_factor if args['patch_z']*refine_factor > args['min_patch_z'] else args['min_patch_z']
+                if np.abs(result[1]) < 1e-9:
+                    cprint("Converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
+                    print("Residual={: 5.10E}.".format(result[1], nrm, err))
+                    break
 
+            cprint("Failed to converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
 
 
     step = 0

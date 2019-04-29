@@ -13,6 +13,8 @@ def dataset(reuse=False, **args):
 
     db_file = args['db_save_path'] + 'open_cover_xmin_{:5.2f}_xmax_{:5.2f}_zmin_{:.2f}_zmax_{:.2f}_subnx_{}_subnz_{}_patch_x_{:.2f}_patch_z_{:.2f}_batchsize_{}_nsamples_{}.npy'.format(xmin, xmax, zmin, zmax, sub_nx, sub_nz, patch_x, patch_z, batch_size, n_samples)
 
+    print('xmin = {0}, xmax = {1}, zmin = {2}, zmax = {3}'.format(xmin, xmax, zmin, zmax))
+
     # Check if database is reusable
     if reuse and os.path.exists(db_file):
         return np.load(db_file)
