@@ -11,10 +11,16 @@ def main(args):
     parser = argparse.ArgumentParser(description='Process task and param file.')
     parser.add_argument('--Train', '-t','-T', help='train or test', type=int, default=1)
     parser.add_argument('--param', '-p','-P', help='parameter file', type=str, default='lorenz_params.txt')
+    parser.add_argument('--restore', '-r','-R', help='restore saved model weights', type=bool, default=False)
     args = parser.parse_args()
     configs = load_params(args.param)
-    print(configs)
 
+    if args.restore:
+        configs['restore'] = True
+    else:
+        configs['restore'] = False
+
+    print(configs)
     if args.Train:
         model = Lorenz_Model(**configs)
         result = solve_pde(model, **configs)
