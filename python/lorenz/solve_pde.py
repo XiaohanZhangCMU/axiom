@@ -45,12 +45,20 @@ def solve_pde(model, **args):
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
     sess.run(tf.local_variables_initializer())
+
+    if args['restore'] is not None:
+        print('Restore saved model for reuse')
+        saver = tf.train.Saver()
+        saver.restore(sess, save_path=os.path.join(args['LOG_DIR'], "model.ckpt-0"))
+
     refine_factor = 0.5
 
     kargs = args.copy()
-    Nx, Nz = 4, 4
+    Nx, Nz = 8, 8
     region_x = (args['xmax']-args['xmin'])/Nx * 2
     region_z = (args['zmax']-args['zmin'])/Nz * 2
+
+    print('region_x = {0}'.format(region_x))
     x_linspace = np.linspace(args['xmin'], args['xmax'], Nx)
     z_linspace = np.linspace(args['zmin'], args['zmax'], Nz)
 
@@ -64,7 +72,7 @@ def solve_pde(model, **args):
             kargs['xmin'], kargs['xmax'] = xmin, xmax
             kargs['zmin'], kargs['zmax'] = zmin, zmax
 
-            db = dataset(reuse = False, **kargs)
+            db = dataset(reuse = True, **kargs)
             inds = np.arange(db.shape[0])
 
             for epoch in range(epochs):
@@ -79,9 +87,9 @@ def solve_pde(model, **args):
                 if epoch % 1 == 0:
                     print("Epoch = {:5d}; LR = {:5.10E}; Residuals={: 5.10E};".format(epoch, lr(epoch), result[1]))
 
-                if np.abs(result[1]) < 1e-9:
+                if np.abs(result[1]) < 1e-2:
                     cprint("Converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
-                    print("Residual={: 5.10E}.".format(result[1], nrm, err))
+                    print("Residual={: 5.10E}.".format(result[1]))
                     break
 
             cprint("Failed to converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
