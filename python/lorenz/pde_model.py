@@ -10,19 +10,19 @@ class Lorenz_Model:
         sub_nz = config['sub_nz']
 
         self.x_ph = x_ph = tf.placeholder(dtype=np.float64,
-                shape=(None, sub_nx, sub_nz, 2), name='input')
+                shape=(None, 2), name='input')
         xadv = tf.identity(x_ph) # Such that dG/d_xadv = dG/d_x
-        self.G = G = self.mlp_policy(xadv, hidden_sizes=(sub_nx,1))
+        self.G = G = self.mlp_policy(xadv, hidden_sizes=(sub_nx,sub_nx,1))
         dG = tf.gradients(G, xadv)[0]
         # d2G,_ = tf.hessians(G, xadv) # Regularizer
-        self.loss_sum = loss_sum = tf.reduce_mean(((sigma*((G-xadv[:,:,:,0:1])*dG[:,:,:,0:1])) + (((xadv[:,:,:,0:1]*G)-beta*xadv[:,:,:,1:2])*dG[:,:,:,1:2]) + G + (xadv[:,:,:,0:1]*(xadv[:,:,:,1:2]-gamma)))**2)
+        self.loss_sum = loss_sum = tf.reduce_sum(((sigma*((G-xadv[:,0:1])*dG[:,0:1])) + (((xadv[:,0:1]*G)-beta*xadv[:,1:2])*dG[:,1:2]) + G + (xadv[:,0:1]*(xadv[:,1:2]-gamma)))**2)
         # + tf.math.scalar_mul(epsilon,(d2Gx+d2Gz))  # Regularizer
 
         print('xadv, G and dG shape')
         print(xadv.shape)
         print(G.shape)
         print(dG.shape)
-        print((G-xadv[:,:,:,0:1]).shape)
+        print((G-xadv[:,0:1]).shape)
         print(loss_sum.shape)
         print('done')
 
