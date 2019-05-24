@@ -31,12 +31,11 @@ def run_coarse_lorenz(icpt = [-10, 23], N=10, dt = 0.001, **configs):
 
     for ti in range(N):
         coarse_traj[ti] = [xi, 0, zi]
-        test_input = np.array(np.stack(np.meshgrid(np.linspace(xi-.5*min_patch_x,xi+.5*min_patch_x,sub_nx),np.linspace(zi-.5*min_patch_z, zi+.5*min_patch_z, sub_nz)), axis=-1))
-        new_test_input = test_input.reshape((1, *(test_input.shape)))
-        loss_sum_val = sess.run([model.loss_sum], feed_dict={model.x_ph:new_test_input})
-        print('test output of loss_sum = {0}'.format(loss_sum_val[0]))
-        y0 = sess.run([model.G], feed_dict={model.x_ph:new_test_input})
-        yi = y0[0][0,7,7,0]
+        test_input = np.array([xi,zi]).reshape(1,-1)
+        loss_sum_val = sess.run([model.loss_sum], feed_dict={model.x_ph:test_input})
+        print('test output of loss_sum = {0}'.format(loss_sum_val))
+        y0 = sess.run([model.G], feed_dict={model.x_ph:test_input})
+        yi = y0[0]
         xdot = sigma*(yi-xi)
         zdot = xi*yi - beta*zi
         xi = xi + xdot * dt

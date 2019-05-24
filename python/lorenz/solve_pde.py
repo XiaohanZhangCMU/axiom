@@ -26,16 +26,16 @@ from utils import *
 
 def lr(epoch):
     learning_rate = 1e-3
-    if epoch > 120:
-        return (1e-4)
-    elif epoch > 80:
-        return (5e-4)
+    if epoch > 60:
+        return 1e-4
+    elif epoch > 100:
+        return 1e-5
     return learning_rate
 
 
 def solve_pde(model, **args):
 
-    tol = 1e-9 # convergence tol
+    convg_tol = 1e-9 # convergence tol
     epochs = args['epochs']
     LOG_DIR = args['LOG_DIR']
 
@@ -46,7 +46,7 @@ def solve_pde(model, **args):
     sess.run(tf.global_variables_initializer())
     sess.run(tf.local_variables_initializer())
 
-    if args['restore'] is not None:
+    if args['restore']:
         print('Restore saved model for reuse')
         saver = tf.train.Saver()
         saver.restore(sess, save_path=os.path.join(args['LOG_DIR'], "model.ckpt-0"))
@@ -54,7 +54,7 @@ def solve_pde(model, **args):
     refine_factor = 0.5
 
     kargs = args.copy()
-    Nx, Nz = 8, 8
+    Nx, Nz = 4, 4
     region_x = (args['xmax']-args['xmin'])/Nx * 2
     region_z = (args['zmax']-args['zmin'])/Nz * 2
 
@@ -68,13 +68,14 @@ def solve_pde(model, **args):
             xmax = x0 + region_x/2.0
             zmin = z0 - region_z/2.0
             zmax = z0 + region_z/2.0
+            xmin,xmax,zmin,zmax = args['xmin'],args['xmax'],args['zmin'],args['zmax']
 
             kargs['xmin'], kargs['xmax'] = xmin, xmax
             kargs['zmin'], kargs['zmax'] = zmin, zmax
 
-            db = dataset(reuse = True, **kargs)
+            db = dataset(reuse = False, **kargs)
             inds = np.arange(db.shape[0])
-
+            converged = False
             for epoch in range(epochs):
 
                 np.random.shuffle(inds)
@@ -87,12 +88,13 @@ def solve_pde(model, **args):
                 if epoch % 1 == 0:
                     print("Epoch = {:5d}; LR = {:5.10E}; Residuals={: 5.10E};".format(epoch, lr(epoch), result[1]))
 
-                if np.abs(result[1]) < 1e-2:
+                if np.abs(result[1]) < convg_tol:
                     cprint("Converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
                     print("Residual={: 5.10E}.".format(result[1]))
+                    converged = True
                     break
-
-            cprint("Failed to converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
+            if not converged:
+                cprint("Failed to converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
 
 
     step = 0
