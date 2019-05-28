@@ -24,10 +24,9 @@ def main(args):
     if args.Train:
         model = Lorenz_Model(**configs)
         result = solve_pde(model, **configs)
-
     else:
         fine_traj = run_fine_lorenz(icpt=[-10,5,23], N=1000, **configs)
-        coarse_traj = run_coarse_lorenz(N=1000, **configs)
+        coarse_traj = run_coarse_lorenz(icpt = [-10,23], N=1000, **configs)
 
         np.save('fine_traj.npy',fine_traj)
         np.save('coarse_traj.npy',coarse_traj)

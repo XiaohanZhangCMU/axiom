@@ -56,16 +56,25 @@ def solve_pde(model, **args):
 
         db = GD[Gid]
         inds = np.arange(db.shape[0])
+        split = int(0.8 * len(inds))
+        train_inds = inds[:split]
+        valid_inds = inds[split:]
 
         converged = False
         for epoch in range(epochs):
-            np.random.shuffle(inds)
+            np.random.shuffle(train_inds)
 
-            for index, ind in enumerate(inds):
+            for index, ind in enumerate(train_inds):
                 result = sess.run([model.op, model.loss_sum, model.G], feed_dict={model.x_ph:db[ind], model.learning_rate:lr(epoch)})
+
+            valid = 0
+            for index, ind in enumerate(valid_inds):
+                valid += sess.run([model.loss_sum], feed_dict={model.x_ph:db[ind]})[0]
+            valid /= len(valid_inds)
 
             if epoch % 1 == 0:
                 print("Epoch = {:5d}; LR = {:5.10E}; Residuals={: 5.10E};".format(epoch, lr(epoch), result[1]))
+                print("Validation mean residual = {: 5.10E}".format(valid))
 
             if np.abs(result[1]) < convg_tol:
                 cprint("Converged in {:d} epochs!!!".format(epoch), 'green', 'on_red')
@@ -77,6 +86,4 @@ def solve_pde(model, **args):
 
         saver = tf.train.Saver()
         saver.save(sess, os.path.join(LOG_DIR, "Gid_"+str(Gid)+"_model.ckpt"), gstep)
-
-
 
