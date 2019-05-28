@@ -6,16 +6,16 @@ class Lorenz_Model:
         sigma = config['sigma']
         beta = config['beta']
         gamma = config['gamma']
-        sub_nx = config['sub_nx']
-        sub_nz = config['sub_nz']
 
         self.x_ph = x_ph = tf.placeholder(dtype=np.float64,
                 shape=(None, 2), name='input')
         xadv = tf.identity(x_ph) # Such that dG/d_xadv = dG/d_x
-        self.G = G = self.mlp_policy(xadv, hidden_sizes=(sub_nx,sub_nx,1))
+        self.G = G = self.mlp_policy(xadv, hidden_sizes=(8,2,1))
         dG = tf.gradients(G, xadv)[0]
         # d2G,_ = tf.hessians(G, xadv) # Regularizer
-        self.loss_sum = loss_sum = tf.reduce_sum(((sigma*((G-xadv[:,0:1])*dG[:,0:1])) + (((xadv[:,0:1]*G)-beta*xadv[:,1:2])*dG[:,1:2]) + G + (xadv[:,0:1]*(xadv[:,1:2]-gamma)))**2)
+        # self.loss_sum = loss_sum = tf.reduce_sum(((sigma*((G-xadv[:,0:1])*dG[:,0:1])) + (((xadv[:,0:1]*G)-beta*xadv[:,1:2])*dG[:,1:2]) + G + (xadv[:,0:1]*(xadv[:,1:2]-gamma)))**2)
+        # Scaled form
+        self.loss_sum = loss_sum = tf.reduce_sum(((sigma*((G-xadv[:,0:1])*dG[:,0:1])) + (((gamma * xadv[:,0:1]*G)-beta*xadv[:,1:2])*dG[:,1:2]) + G + (xadv[:,0:1]*(gamma * xadv[:,1:2]-gamma)))**2)
         # + tf.math.scalar_mul(epsilon,(d2Gx+d2Gz))  # Regularizer
 
         print('xadv, G and dG shape')
@@ -59,8 +59,8 @@ class Lorenz_Model:
             fc = tf.layers.dense(inputs=drop, units=feat_dim, activation=tf.nn.relu)
         return fc, learning_rate
 
-    def mlp_policy(self, x, hidden_sizes=(32,1), activation=tf.tanh, output_activation=None):
+    def mlp_policy(self, x, hidden_sizes=(32,1), activation=tf.nn.sigmoid, output_activation=None):
         for h in hidden_sizes[:-1]:
-            x = tf.layers.dense(x, units=h, activation=activation)
-        return tf.layers.dense(x, units=hidden_sizes[-1], activation=output_activation)
+            x = tf.layers.dense(x, units=h, activation=activation, kernel_initializer=tf.contrib.layers.xavier_initializer())
+        return tf.layers.dense(x, units=hidden_sizes[-1], activation=output_activation, kernel_initializer=tf.contrib.layers.xavier_initializer())
 
