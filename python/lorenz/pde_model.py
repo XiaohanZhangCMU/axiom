@@ -6,6 +6,7 @@ class Lorenz_Model:
         sigma = config['sigma']
         beta = config['beta']
         gamma = config['gamma']
+        Bbar = config['Bbar']
 
         self.x_ph = x_ph = tf.placeholder(dtype=np.float64,
                 shape=(None, 2), name='input')
@@ -15,7 +16,7 @@ class Lorenz_Model:
         # d2G,_ = tf.hessians(G, xadv) # Regularizer
         # self.loss_sum = loss_sum = tf.reduce_sum(((sigma*((G-xadv[:,0:1])*dG[:,0:1])) + (((xadv[:,0:1]*G)-beta*xadv[:,1:2])*dG[:,1:2]) + G + (xadv[:,0:1]*(xadv[:,1:2]-gamma)))**2)
         # Scaled form
-        self.loss_sum = loss_sum = tf.reduce_sum(((sigma*((G-xadv[:,0:1])*dG[:,0:1])) + (((gamma * xadv[:,0:1]*G)-beta*xadv[:,1:2])*dG[:,1:2]) + G + (xadv[:,0:1]*(gamma * xadv[:,1:2]-gamma)))**2)
+        self.loss_sum = loss_sum = tf.reduce_sum(((sigma*((G-xadv[:,0:1])*dG[:,0:1])) + ((Bbar*xadv[:,0:1]*G-beta*xadv[:,1:2])*dG[:,1:2]) + G + (xadv[:,0:1]*(Bbar*xadv[:,1:2]-gamma)))**2)
         # + tf.math.scalar_mul(epsilon,(d2Gx+d2Gz))  # Regularizer
 
         print('xadv, G and dG shape')
@@ -30,6 +31,11 @@ class Lorenz_Model:
         optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=0.9,beta2=0.999,epsilon=1e-08)
         grads_and_vars = optimizer.compute_gradients(loss_sum)
         self.op = optimizer.apply_gradients(grads_and_vars,global_step=tf.Variable(0, trainable=False))
+
+    def mlp_policy(self, x, hidden_sizes=(32,1), activation=tf.nn.sigmoid, output_activation=tf.nn.sigmoid):
+        for h in hidden_sizes[:-1]:
+            x = tf.layers.dense(x, units=h, activation=activation, kernel_initializer=tf.contrib.layers.xavier_initializer())
+        return tf.layers.dense(x, units=hidden_sizes[-1], activation=output_activation, kernel_initializer=tf.contrib.layers.xavier_initializer())
 
     def cnn_policy(self, x_image, sub_nx, feat_dim=1):
         _IMAGE_SIZE = sub_nx
@@ -58,9 +64,4 @@ class Lorenz_Model:
             #flat = tf.reshape(drop, [-1, 4 * 4 * 128])
             fc = tf.layers.dense(inputs=drop, units=feat_dim, activation=tf.nn.relu)
         return fc, learning_rate
-
-    def mlp_policy(self, x, hidden_sizes=(32,1), activation=tf.nn.sigmoid, output_activation=None):
-        for h in hidden_sizes[:-1]:
-            x = tf.layers.dense(x, units=h, activation=activation, kernel_initializer=tf.contrib.layers.xavier_initializer())
-        return tf.layers.dense(x, units=hidden_sizes[-1], activation=output_activation, kernel_initializer=tf.contrib.layers.xavier_initializer())
 

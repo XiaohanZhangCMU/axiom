@@ -67,12 +67,11 @@ def solve_pde(model, **args):
             for index, ind in enumerate(train_inds):
                 result = sess.run([model.op, model.loss_sum, model.G], feed_dict={model.x_ph:db[ind], model.learning_rate:lr(epoch)})
 
-            valid = 0
-            for index, ind in enumerate(valid_inds):
-                valid += sess.run([model.loss_sum], feed_dict={model.x_ph:db[ind]})[0]
-            valid /= len(valid_inds)
-
-            if epoch % 1 == 0:
+            if epoch % 10 == 0:
+                valid = 0
+                for index, ind in enumerate(valid_inds):
+                    valid += sess.run([model.loss_sum], feed_dict={model.x_ph:db[ind]})[0]
+                valid /= len(valid_inds)
                 print("Epoch = {:5d}; LR = {:5.10E}; Residuals={: 5.10E};".format(epoch, lr(epoch), result[1]))
                 print("Validation mean residual = {: 5.10E}".format(valid))
 

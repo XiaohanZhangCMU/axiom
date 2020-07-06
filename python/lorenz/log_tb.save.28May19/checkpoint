@@ -1,0 +1,2 @@
+model_checkpoint_path: "/Users/xiaohan.zhang/Planet/Codes/axiom/python/lorenz/log_tb/Gid_15_model.ckpt-0"
+all_model_checkpoint_paths: "/Users/xiaohan.zhang/Planet/Codes/axiom/python/lorenz/log_tb/Gid_15_model.ckpt-0"
